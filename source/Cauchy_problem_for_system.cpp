@@ -37,6 +37,10 @@ void run(std::vector<std::pair<double, double>>& Table, double a, double b, doub
     }
 }
 
+bool checkUp(double y) {
+
+}
+
 
 int main() {
     double a, b;
@@ -45,7 +49,15 @@ int main() {
 
     std::vector<std::pair<double,double>> Table(100);
     double t;
-    double h;
+    double h = 10e-5;
+    int N = 10e3;
+    double e_right = 0.5 * 10e-6;
+    double e_up = 0.5*10e-4;
+    double e_min = e_up / (2 << 4);
+    std::cout << (2 << 4) << std::endl;
+    std::cout << h << std::endl;
+    std::cout << e_min << std::endl;
+
     int n;
     std::cin >> a;
     std::cin >> b;
