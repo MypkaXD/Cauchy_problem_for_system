@@ -17,7 +17,7 @@ private:
     std::vector<std::pair<double, double>> m_data; // хранит точки (x,y)
     double m_h = 10e-5; // численный шаг интегрирования
     int m_N_max = 10000; // 
-    double m_E_check_right = 0.5*10e-6;
+    double m_E_check_right = 0.5 * 10e-6;
     double m_E_check_up = 0.5 * 10e-4;
     double m_E_check_down = m_E_check_up / (2 >> 4);
 
@@ -31,14 +31,14 @@ public:
     }
 
     double getNewX(double x, double h) {
-        return ( x + h );
+        return (x + h);
     }
 
     double func(double x, double y) {
         return (2 * x - y + x * x);
     }
 
-    std::vector<double> findPoint(double x ,double y, double h) {
+    std::vector<double> findPoint(double x, double y, double h) {
         std::vector<double> result(4);
 
         result[0] = func(x, y);
@@ -109,7 +109,7 @@ public:
         int count = 0;
         while (m_data.size() > count) {
             std::cout << "x" << count << " = " << m_data[count].first << "\t|\ty" << count << " = " << m_data[count].second << std::endl;
-            ++count; 
+            ++count;
         }
     }
 };

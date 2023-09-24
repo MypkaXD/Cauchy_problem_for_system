@@ -23,4 +23,6 @@ add_subdirectory(${CMAKE_SOURCE_DIR}/libs)
 target_link_libraries(Cauchy_problem_for_system
   PUBLIC
     ImGui-SFML::ImGui-SFML
+	implot
+	ImGui
 )
