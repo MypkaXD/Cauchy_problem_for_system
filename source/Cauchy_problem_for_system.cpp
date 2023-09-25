@@ -12,12 +12,17 @@
 #include <iostream>
 
 #include "RKIV.h"
+#include "App.h"
 
 int main() {
-
+    
     RK_IV rkiv;
     rkiv.run();
     rkiv.print();
+
+    App app;
+    app.init();
+    app.run();
 
     return 0;
 }
