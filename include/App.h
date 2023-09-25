@@ -41,8 +41,10 @@ public:
             ImGui::SFML::Update(m_window, deltaClock.restart());
             
             bool open = true;
-            ImGui::SetNextWindowSize({ 100,100});
-            ImGui::Begin("Name", &open, ImGuiWindowFlags_NoResize);
+            ImGui::SetNextWindowSize({ 230,30});
+            //ImGuiWindowFlags_NoResize
+            ImGuiWindowFlags window_flags = ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoScrollbar;
+            ImGui::Begin("Name", &open, window_flags);
             
             static int count = 0;
             if (ImGui::Button("NAME")) {
