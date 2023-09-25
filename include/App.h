@@ -8,7 +8,6 @@
 #include <SFML/System/Clock.hpp>
 #include <SFML/Window/Event.hpp>
 
-
 #pragma once
 
 class App {
@@ -39,18 +38,18 @@ public:
                     m_window.close();
                 }
             }
-
-
             ImGui::SFML::Update(m_window, deltaClock.restart());
-            ImVec2 size = { 200,220 };
-            ImGui::Button("ASDASD",size);
-
-            float anim_speed = 0.2;
-            float obj_speed = 0.2;
-            ImGui::Begin("ImGui Window"); // создаём окно ImGui
-            ImGui::SliderFloat("Animation Hero Speed", &anim_speed, 0.1, 10);
-            ImGui::SliderFloat("Hero Speed", &obj_speed, 0.1, 10);
-            ImGui::End(); // end window
+            
+            bool open = true;
+            ImGui::SetNextWindowSize({ 100,100});
+            ImGui::Begin("Name", &open, ImGuiWindowFlags_NoResize);
+            
+            static int count = 0;
+            if (ImGui::Button("NAME")) {
+                ++count;
+            }
+            ImGui::SameLine(); ImGui::Text("Count of pressing: %d", count);
+            ImGui::End();
 
             m_window.clear();
             render();
