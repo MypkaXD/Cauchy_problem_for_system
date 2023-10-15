@@ -20,7 +20,7 @@ private:
     double m_a; // левая граница
     double m_b; // правая граница
 
-    int m_N_max = 10000; // максимальное число шагов
+    int m_N_max = 5; // максимальное число шагов
     int p = 4; // порядок метода
 
 public:
@@ -77,6 +77,13 @@ public:
             return Actions_with_H::DIVIDE_BY_2_AND_RECALCULATE;
     }
 
+    Actions_with_H checkRight(double x) {
+        if (x > m_b - m_E_check_right)
+            return Actions_with_H::DIVIDE_BY_2_AND_RECALCULATE;
+        else if (x <= m_b - m_E_check_right)
+            return Actions_with_H::NOTHING;
+    }
+
     void run(double x0, double u0) {
         std::vector<std::pair<double, double>> data;
         
@@ -93,30 +100,35 @@ public:
             std::pair<double, double> coords_with_twice_half_h = RKIV(coords_with_half_h.first, coords_with_half_h.second, m_h / 2);
 
 
-            Actions_with_H act = checkUpDown(coords_with_h.second, coords_with_twice_half_h.second);
+            Actions_with_H act1 = checkUpDown(coords_with_h.second, coords_with_twice_half_h.second);
+            Actions_with_H act2 = checkRight(coords_with_h.first);
 
-            if (act == Actions_with_H::MULTIPLY_BY_2) {
-                data.push_back(coords_with_h);
-                m_h *= 2;
-                std::cout << "MULTIPLY_BY_2" << std::endl;
-            }
-            else if (act == Actions_with_H::NOTHING)
-            {
-                data.push_back(coords_with_h);
-                std::cout << "NOTHING" << std::endl;
-            }
-            else if (act == Actions_with_H::DIVIDE_BY_2_AND_RECALCULATE) {
+            if (act2 == Actions_with_H::DIVIDE_BY_2_AND_RECALCULATE) {
                 m_h /= 2;
-                std::cout << "DIVIDE_BY_2_AND_RECALCULATE" << std::endl;
+                std::cout << "ACT2 TRUE" << std::endl;
             }
-            if (coords_with_h.first <= (m_b - m_E_check_right)) {
-                std::cout << "ASDASD" << std::endl;
+            else if (act2 == Actions_with_H::NOTHING) {
+                if (act1 == Actions_with_H::MULTIPLY_BY_2) {
+                    data.push_back(coords_with_h);
+                    m_h *= 2;
+                    std::cout << "MULTIPLY_BY_2" << std::endl;
+                    --m_N_max;
+                }
+                else if (act1 == Actions_with_H::NOTHING)
+                {
+                    data.push_back(coords_with_h);
+                    std::cout << "NOTHING" << std::endl;
+                    --m_N_max;
+                }
+                else if (act1 == Actions_with_H::DIVIDE_BY_2_AND_RECALCULATE) {
+                    m_h /= 2;
+                    std::cout << "DIVIDE_BY_2_AND_RECALCULATE" << std::endl;
+                }
             }
-            else {
-                std::cout << "12312312" << std::endl;
-            }
-            std::cout << "SIZE: " << data.size() << std::endl;
-        } while (coords_with_h.first <= (m_b - m_E_check_right) && act != Actions_with_H::DIVIDE_BY_2_AND_RECALCULATE);
+
+            std::cout << "+++++++++++++++++++" << std::endl;
+
+        } while (m_N_max > 0);
 
 
         for (int count = 0; count < data.size(); ++count) {

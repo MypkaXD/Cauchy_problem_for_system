@@ -17,7 +17,7 @@
 int main() {
     
     RK rk(0, 1);
-    rk.run(0, 1);
+    rk.run(0, -1);
 
     return 0;
 }
