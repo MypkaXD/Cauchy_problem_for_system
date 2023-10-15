@@ -16,8 +16,9 @@
 
 int main() {
     
-    RK rk(0, 1);
-    rk.run(0, -1);
+    App app;
+    app.init();
+    app.run();
 
     return 0;
 }

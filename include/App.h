@@ -32,6 +32,18 @@ public:
 
     void run() {
 
+        RK rk(0, 3);
+        std::vector<std::pair<double, double>> data(rk.run(0, 1));
+
+        const int size = data.size();
+        double* x = new double[size];
+        double* y = new double[size];
+
+        for (int count = 0; count < data.size(); ++count)
+            x[count] = (data[count].first);
+        for (int count = 0; count < data.size(); ++count)
+            y[count] = (data[count].second);
+
         sf::Clock deltaClock;
         while (m_window.isOpen()) {
             ImPlot::SetCurrentContext(ImPlot::GetCurrentContext());
@@ -45,16 +57,10 @@ public:
             }
             ImGui::SFML::Update(m_window, deltaClock.restart());
 
-            float x_data[1000] = { 0,0.0001,0.0003,0.0007,0.0015,0.0031,0.0063,0.0127,0.0255,0.0511, 0.1023,
-                0.2047 , 0.4095 ,0.8191 ,1.6383 };
-            float y_data[1000] = { 0,2.08333e-13,7.20833e-12,9.65417e-11,9.68542e-10,
-                8.62188e-09 ,7.26539e-08 ,5.96323e-07 ,4.83172e-06 ,3.88998e-05 ,
-                0.000312187 ,0.00250167 ,0.0200573 ,0.164231 ,2.10427 };
-
             ImGui::Begin("My Window");
             
             if (ImPlot::BeginPlot("My Plot")) {
-                ImPlot::PlotLine("My Line Plot", x_data, y_data, 1000);
+                ImPlot::PlotLine("My Line Plot", x, y, size);
                 ImPlot::EndPlot();
             }
             ImGui::End();

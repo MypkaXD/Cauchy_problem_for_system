@@ -20,7 +20,7 @@ private:
     double m_a; // левая граница
     double m_b; // правая граница
 
-    int m_N_max = 5; // максимальное число шагов
+    int m_N_max = 100; // максимальное число шагов
     int p = 4; // порядок метода
 
 public:
@@ -84,7 +84,7 @@ public:
             return Actions_with_H::NOTHING;
     }
 
-    void run(double x0, double u0) {
+    std::vector<std::pair<double, double>> run(double x0, double u0) {
         std::vector<std::pair<double, double>> data;
         
         data.push_back({ x0,u0 });
@@ -92,7 +92,7 @@ public:
         Actions_with_H act = Actions_with_H::NOTHING;
         std::pair<double, double> coords_with_h;
 
-        do {
+        while (m_N_max > 0) {
             std::pair<double, double> current_coord = data.back();
             
             coords_with_h = RKIV(current_coord.first, current_coord.second, m_h);
@@ -128,11 +128,17 @@ public:
 
             std::cout << "+++++++++++++++++++" << std::endl;
 
-        } while (m_N_max > 0);
-
-
-        for (int count = 0; count < data.size(); ++count) {
-            std::cout << data[count].first << "\t" << data[count].second << std::endl;
         }
+        
+        for (int count = 0; count < data.size(); ++count)
+            std::cout << data[count].first << "\t " << data[count].second << std::endl;
+
+        return data;
     }
 };
+
+/*
+
+Не забудь починить хрень с выходом за правую границу, чтобы мы не ошивались у m_b пока N > 0
+
+*/
