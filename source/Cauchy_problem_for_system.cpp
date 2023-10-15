@@ -16,13 +16,8 @@
 
 int main() {
     
-    RK_IV rkiv;
-    rkiv.run();
-    rkiv.print();
-
-    App app;
-    app.init();
-    app.run();
+    RK rk(0, 1);
+    rk.run(0, 1);
 
     return 0;
 }

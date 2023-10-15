@@ -3,104 +3,124 @@
 
 #pragma once
 
-class RK_IV {
-private:
-    std::vector<std::pair<double, double>> m_data; // хранит точки (x,y)
-    double m_h = 10e-5; // численный шаг интегрирования
-    int m_N_max = 10000; // 
-    double m_E_check_right = 0.5 * 10e-6;
-    double m_E_check_up = 0.5 * 10e-4;
-    double m_E_check_down = m_E_check_up / (2 >> 4);
+enum class Actions_with_H {
+    MULTIPLY_BY_2,
+    NOTHING,
+    DIVIDE_BY_2_AND_RECALCULATE
+};
 
-    double a = 1;
-    double b = 1.05;
+class RK {
+private:
+    //10e-5
+    double m_h = 0.1; // численный шаг интегрирования
+    double m_E_check_right = 0.5 * 10e-6; // проверка для "выхода" справа
+    double m_E_check_up = 0.5 * 10e-4; // проверка для "вверха"
+    double m_E_check_down = m_E_check_up / (2 >> p); // проверка для "низа"
+
+    double m_a; // левая граница
+    double m_b; // правая граница
+
+    int m_N_max = 10000; // максимальное число шагов
+    int p = 4; // порядок метода
 
 public:
 
-    RK_IV() {
-        m_data.push_back({ 0,0 });
+    RK(double a, double b) {
+        m_a = a;
+        m_b = b;
     }
 
-    double getNewX(double x, double h) {
-        return (x + h);
+    double test_func(double x, double u) { // реализация функции du/dx для тестовой задачи
+        // У нас 5-ый №команды => du/dx = (-1)^5*5/2*u => du/dx = -5/2*u
+
+        return (-5 / 2 * u);
     }
 
-    double func(double x, double y) {
-        return (x * x + y * y);
+    double getNewX(double x, double h) { // получаем новый x
+        return (x + h); // считаем новый x
     }
 
-    std::vector<double> findPoint(double x, double y, double h) {
-        std::vector<double> result(4);
-
-        result[0] = func(x, y);
-        result[1] = func(x + h / 2, y + h * result[0] / 2);
-        result[2] = func(x + h / 2, y + h * result[1] / 2);
-        result[3] = func(x + h / 2, y + h * result[2]);
-
-        return result;
-    }
-
-    std::vector<double> calc(double x, double y) {
-        std::vector<double> points(3);
-
-        std::vector<double> result = findPoint(x, y, m_h);
-        double newXwithH = getNewX(x, m_h);
-        double newYwithH = y + m_h / 6 * (result[0] + 2 * result[1] + 2 * result[2] + result[3]);
-
-        double XwithHalfH = getNewX(x, m_h / 2);
-        std::vector<double> result_sec = findPoint(x, y, m_h / 2);
-        double newYHalfH = y + m_h / 6 * (result_sec[0] + 2 * result_sec[1] + 2 * result_sec[2] + result_sec[3]);
-
-        double NewXWithTwiceHalfH = getNewX(XwithHalfH, m_h / 2);
-        std::vector<double> result_third = findPoint(XwithHalfH, newYHalfH, m_h / 2);
-        double NewYWithTwiceHalfH = newYHalfH + m_h / 6 * (result_third[0] + 2 * result_third[1] + 2 * result_third[2] + result_third[3]);
-
-        points[0] = newXwithH;
-        points[1] = newYwithH;
-        points[2] = NewYWithTwiceHalfH;
-
-        return points;
-    }
-
-    bool check(int count) {
-        std::vector<double> points = calc(m_data[count].first, m_data[count].second);
-
-
-        double S = (points[2] - points[1]) / (2 << 3 + 1);
-
-
-        if (abs(S) >= m_E_check_down && abs(S) <= m_E_check_up) {
-            m_data.push_back({ points[0] , points[1] });
-            std::cout << "H" << std::endl;
-            return true;
-        }
-        else if (abs(S) < m_E_check_down) {
-            m_data.push_back({ points[0] , points[1] });
-            m_h = m_h * 2;
-            std::cout << "H*2" << std::endl;
-            return true;
-        }
+    double getNewU(std::vector<double> k, double u, double h) { // получаем новый u
+        if (k.size() != 4) // выбрасываем ошибку, если размер вектора k-коэффициентов != 4. Такое впринципе невозможно, но путь будет
+            throw ("ERROR: The vector of K-koef isn't contain 4 elems");
         else {
-            m_h = m_h / 2;
-            std::cout << "H/2" << std::endl;
-            return false;
+            return (u + h / 6 * (k[0] + 2 * k[1] + 2 * k[2] + k[3])); // считаем новый u
         }
     }
 
-    void run() {
-        int count = 0;
-        while (m_data[count].first <= b) {
-            while (!check(count)) {
+    double getS(double u_with_h, double u_with_twice_half_h) {
+        return ((u_with_twice_half_h - u_with_h) / ((2 << (p - 1)) - 1)); // считаем S по формуле S = (v_h/2(n+1) - v_h(n+1)) / (2^p - 1)
+    }
+
+    std::pair<double, double> RKIV(double x, double u, double h) { // реализация метода
+
+        // необходимо как-то придумать, чтобы вызывалась функция в зависимости от требуемой
+        // если надо посчитать test_func, то вызывается test_func, если надо посчитать main_func_1/2, то вызывается main_func_1/2
+
+        double k1 = test_func(x, u); // считаем k1
+        double k2 = test_func(x + h / 2, u + h / 2 * k1); // считаем k2
+        double k3 = test_func(x + h / 2, u + h / 2 * k2); // считаем k3
+        double k4 = test_func(x + h, u + h * k3); // считаем k4
+
+        return (std::make_pair( getNewX(x, h), getNewU({k1,k2,k3,k4}, u, h))); // создаем пару (x,u) из чисел, полученных через getNewX, getNewU
+    }
+
+    Actions_with_H checkUpDown(double u_with_h, double u_with_twice_half_h) {
+        
+        double S = abs(getS(u_with_h, u_with_twice_half_h)); // получаем S и сразу берем от неё модуль
+
+        if (S >= m_E_check_down && S <= m_E_check_up)
+            return Actions_with_H::NOTHING;
+        else if (S < m_E_check_down)
+            return Actions_with_H::MULTIPLY_BY_2;
+        else if (S > m_E_check_up)
+            return Actions_with_H::DIVIDE_BY_2_AND_RECALCULATE;
+    }
+
+    void run(double x0, double u0) {
+        std::vector<std::pair<double, double>> data;
+        
+        data.push_back({ x0,u0 });
+
+        Actions_with_H act = Actions_with_H::NOTHING;
+        std::pair<double, double> coords_with_h;
+
+        do {
+            std::pair<double, double> current_coord = data.back();
+            
+            coords_with_h = RKIV(current_coord.first, current_coord.second, m_h);
+            std::pair<double, double> coords_with_half_h = RKIV(current_coord.first, current_coord.second, m_h / 2);
+            std::pair<double, double> coords_with_twice_half_h = RKIV(coords_with_half_h.first, coords_with_half_h.second, m_h / 2);
+
+
+            Actions_with_H act = checkUpDown(coords_with_h.second, coords_with_twice_half_h.second);
+
+            if (act == Actions_with_H::MULTIPLY_BY_2) {
+                data.push_back(coords_with_h);
+                m_h *= 2;
+                std::cout << "MULTIPLY_BY_2" << std::endl;
             }
-            ++count;
-        }
-    }
+            else if (act == Actions_with_H::NOTHING)
+            {
+                data.push_back(coords_with_h);
+                std::cout << "NOTHING" << std::endl;
+            }
+            else if (act == Actions_with_H::DIVIDE_BY_2_AND_RECALCULATE) {
+                m_h /= 2;
+                std::cout << "DIVIDE_BY_2_AND_RECALCULATE" << std::endl;
+            }
+            if (coords_with_h.first <= (m_b - m_E_check_right)) {
+                std::cout << "ASDASD" << std::endl;
+            }
+            else {
+                std::cout << "12312312" << std::endl;
+            }
+            std::cout << "SIZE: " << data.size() << std::endl;
+        } while (coords_with_h.first <= (m_b - m_E_check_right) && act != Actions_with_H::DIVIDE_BY_2_AND_RECALCULATE);
 
-    void print() {
-        int count = 0;
-        while (m_data.size() > count) {
-            std::cout << "x" << count << " = " << m_data[count].first << "\t|\ty" << count << " = " << m_data[count].second << std::endl;
-            ++count;
+
+        for (int count = 0; count < data.size(); ++count) {
+            std::cout << data[count].first << "\t" << data[count].second << std::endl;
         }
     }
 };
