@@ -32,7 +32,7 @@ public:
 
     void run() {
 
-        RK rk(0, 3);
+        RK rk(0, 10);
         std::vector<std::pair<double, double>> data(rk.run(0, 1));
 
         const int size = data.size();
