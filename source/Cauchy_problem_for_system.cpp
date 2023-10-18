@@ -16,9 +16,9 @@
 
 int main() {
     
-    system("chcp 1251");
+    system("chcp 1251"); // для работы русского текста в гитхабе
 
-    App app(0,1);
+    App app;
     app.init();
     app.run();
     

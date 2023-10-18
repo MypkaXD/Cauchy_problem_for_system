@@ -5,24 +5,30 @@
 
 #pragma once
 
-enum class Actions_with_H {
-    MULTIPLY_BY_2,
-    NOTHING,
-    DIVIDE_BY_2_AND_RECALCULATE,
-    GET_LAST,
-    STOP
+enum class Actions_with_H { // enum class для установки статуса шага
+    MULTIPLY_BY_2, // необходимо умножить на два
+    NOTHING, // ничего не делаем
+    DIVIDE_BY_2_AND_RECALCULATE, // делим на два и пересчитываем
+    GET_LAST, // получаем последнюю точку
+    STOP // останавливаемся
+};
+
+enum class Task {
+    TEST_FUNC,
+    FIRST_TASK,
+    SECOND_TASK
 };
 
 class RK {
 private:
-    //10e-5
+
     double m_h = 0.1; // численный шаг интегрирования
     double m_E_check_right = 0.5 * 10e-6; // проверка для "выхода" справа
     double m_E_check_up = 0.5 * 10e-4; // проверка для "вверха"
     double m_E_check_down = ((m_E_check_up ) / 32); // проверка для "низа"
 
-    double m_a; // левая граница
-    double m_b; // правая граница
+    double m_a = 0; // левая граница
+    double m_b = 1; // правая граница
 
     int m_N_max = 100; // максимальное число шагов
     int p = 4; // порядок метода
@@ -52,15 +58,20 @@ private:
         return ((u_with_twice_half_h - u_with_h) / ((2 << (p - 1)) - 1)); // считаем S по формуле S = (v_h/2(n+1) - v_h(n+1)) / (2^p - 1)
     }
 
-    std::pair<double, double> RKIV(double x, double u, double h) { // реализация метода
+    std::pair<double, double> RKIV(double x, double u, double h, Task task) { // реализация метода
 
         // необходимо как-то придумать, чтобы вызывалась функция в зависимости от требуемой
         // если надо посчитать test_func, то вызывается test_func, если надо посчитать main_func_1/2, то вызывается main_func_1/2
 
-        double k1 = test_func(x, u); // считаем k1
-        double k2 = test_func(x + h / 2, u + h / 2 * k1); // считаем k2
-        double k3 = test_func(x + h / 2, u + h / 2 * k2); // считаем k3
-        double k4 = test_func(x + h, u + h * k3); // считаем k4
+        double k1, k2, k3, k4;
+
+        if (task == Task::TEST_FUNC) {
+            k1 = test_func(x, u); // считаем k1
+            k2 = test_func(x + h / 2, u + h / 2 * k1); // считаем k2
+            k3 = test_func(x + h / 2, u + h / 2 * k2); // считаем k3
+            k4 = test_func(x + h, u + h * k3); // считаем k4
+        }
+
 
         return (std::make_pair( getNewX(x, h), getNewU({k1,k2,k3,k4}, u, h))); // создаем пару (x,u) из чисел, полученных через getNewX, getNewU
     }
@@ -92,47 +103,8 @@ private:
             return Actions_with_H::NOTHING; // если мы попали левее эпсилон-правой-границы, то ничего не делаем и продолжаем работу
     }
 
-public:
+    void calculate(double x0, double u0, Task task) {
 
-    RK(double a, double b) {
-        m_a = a;
-        m_b = b;
-    }
-
-    std::vector<std::pair<double, double>>& getCoords() {
-        return m_data;
-    }
-
-    std::vector<double>& getH() {
-        return m_vector_of_h;
-    }
-
-    void set_E_right(double e) {
-        m_E_check_right = e;
-    }
-
-    void set_E_local(double e) {
-        m_E_check_up = e;
-    }
-
-    void set_Start_H(double h) {
-        m_h = h;
-    }
-
-    double get_E_right() {
-        return m_E_check_right;
-    }
-
-    double get_E_local() {
-        return m_E_check_up;
-    }
-
-    double get_Start_H() {
-        return m_h;
-    }
-
-    void run(double x0, double u0) {
-        
         m_data.push_back({ x0,u0 }); // пушим в вектор начальные условия
         m_vector_of_h.push_back(0);
 
@@ -140,10 +112,14 @@ public:
 
         while (true) {
             std::pair<double, double> current_coord = m_data.back(); // получаем текущие координаты (x_n, u_n)
+            std::pair<double, double> coords_with_half_h;
+            std::pair<double, double> coords_with_twice_half_h;
 
-            coords_with_h = RKIV(current_coord.first, current_coord.second, m_h); // получаем точку (x_n+1, u_n+1) с шагом h из точки (x_n, u_n)
-            std::pair<double, double> coords_with_half_h = RKIV(current_coord.first, current_coord.second, m_h / 2); //  получаем точку (x_n+1/2, u_n+1/2) из точки (x_n, u_n) с шагом h/2
-            std::pair<double, double> coords_with_twice_half_h = RKIV(coords_with_half_h.first, coords_with_half_h.second, m_h / 2); // получаем точку (x_n+1, u_n+1) из точки (x_n+1/2, u_n+1/2) с шагом h / 2
+            if (task == Task::TEST_FUNC) {
+                coords_with_h = RKIV(current_coord.first, current_coord.second, m_h, Task::TEST_FUNC); // получаем точку (x_n+1, u_n+1) с шагом h из точки (x_n, u_n)
+                coords_with_half_h = RKIV(current_coord.first, current_coord.second, m_h / 2, Task::TEST_FUNC); //  получаем точку (x_n+1/2, u_n+1/2) из точки (x_n, u_n) с шагом h/2
+                coords_with_twice_half_h = RKIV(coords_with_half_h.first, coords_with_half_h.second, m_h / 2, Task::TEST_FUNC); // получаем точку (x_n+1, u_n+1) из точки (x_n+1/2, u_n+1/2) с шагом h / 2
+            }
 
 
             Actions_with_H act1 = checkUpDown(coords_with_h.second, coords_with_twice_half_h.second); // проверка на выход за локальную погрешность
@@ -174,4 +150,90 @@ public:
 
         }
     }
+
+public:
+
+    RK(double a, double b) {
+        m_a = a;
+        m_b = b;
+    }
+    RK() {
+    }
+
+    void setBorder(double a, double b) {
+        m_a = a;
+        m_b = b;
+    }
+
+    std::pair<double, double> getBorder() {
+        return { m_a,m_b };
+    }
+
+    std::vector<std::pair<double, double>> getCoords() {
+        return m_data;
+    }
+
+    std::vector<double> getH() {
+        return m_vector_of_h;
+    }
+
+    void set_E_right(double e) {
+        m_E_check_right = e;
+    }
+
+    void set_E_local(double e) {
+        m_E_check_up = e;
+    }
+
+    void set_Start_H(double h) {
+        m_h = h;
+    }
+
+    double get_E_right() {
+        return m_E_check_right;
+    }
+
+    double get_E_local() {
+        return m_E_check_up;
+    }
+
+    double get_Start_H() {
+        return m_h;
+    }
+
+    void test_func(double x0, double u0, Task task) {
+        /*
+        Идея:
+            Создать три функции для трех задач. Каждая функция будет запускать run(x0,u0)
+            Для тестовой задачи необходимо решить численно и аналитически =>
+            Будет два вектора пар точек:
+                1) Вектор с численным решением
+                2) Вектор с аналитическим решением
+            Надо будет как-то передать в run, какую функцию использовать в RKIV.
+            Например, можно сделать enum_class с 3-емя элементами
+        
+        
+        */
+        calculate(x0, u0, task);
+    }
+
+    std::vector<std::pair<double, double>> analytical_solution() {
+        double h = (m_b - m_a) / m_N_max;
+        std::vector<std::pair<double, double>> data;
+
+        for (int count = 0; count < m_N_max; ++count)
+            data.push_back({ m_a + count * h, exp((( - 5) / 2) * ( m_a + count * h))});
+
+        for (int count = 0; count < data.size(); ++count) {
+            std::cout << data[count].first << "\t" << data[count].second << std::endl;
+        }
+
+        return data;
+    }
 };
+
+/*
+
+НАДО ПОЧИНИТЬ БОЛЬШУЮ НАГРУЗКУ И НЕ СЧИТАТЬ КАЖДЫЙ РАЗ ТОЧКИ
+
+*/
