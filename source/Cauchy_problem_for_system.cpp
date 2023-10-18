@@ -18,7 +18,7 @@ int main() {
     
     system("chcp 1251");
 
-    App app;
+    App app(0,1);
     app.init();
     app.run();
     

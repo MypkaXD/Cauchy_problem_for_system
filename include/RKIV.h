@@ -27,14 +27,8 @@ private:
     int m_N_max = 100; // максимальное число шагов
     int p = 4; // порядок метода
 
-    std::vector<double> vector_of_h; // веткор для хранения шагов
-
-public:
-
-    RK(double a, double b) {
-        m_a = a;
-        m_b = b;
-    }
+    std::vector<double> m_vector_of_h; // веткор для хранения шагов
+    std::vector<std::pair<double, double>> m_data; // вектор m_data для хранения точек x и u
 
     double test_func(double x, double u) { // реализация функции du/dx для тестовой задачи
         // У нас 5-ый №команды => du/dx = (-1)^5*5/2*u => du/dx = -5/2*u
@@ -98,16 +92,55 @@ public:
             return Actions_with_H::NOTHING; // если мы попали левее эпсилон-правой-границы, то ничего не делаем и продолжаем работу
     }
 
-    std::vector<std::pair<double, double>> run(double x0, double u0) {
-        std::vector<std::pair<double, double>> data; // создаем вектор data для хранения точек x и u
+public:
+
+    RK(double a, double b) {
+        m_a = a;
+        m_b = b;
+    }
+
+    std::vector<std::pair<double, double>>& getCoords() {
+        return m_data;
+    }
+
+    std::vector<double>& getH() {
+        return m_vector_of_h;
+    }
+
+    void set_E_right(double e) {
+        m_E_check_right = e;
+    }
+
+    void set_E_local(double e) {
+        m_E_check_up = e;
+    }
+
+    void set_Start_H(double h) {
+        m_h = h;
+    }
+
+    double get_E_right() {
+        return m_E_check_right;
+    }
+
+    double get_E_local() {
+        return m_E_check_up;
+    }
+
+    double get_Start_H() {
+        return m_h;
+    }
+
+    void run(double x0, double u0) {
         
-        data.push_back({ x0,u0 }); // пушим в вектор начальные условия
+        m_data.push_back({ x0,u0 }); // пушим в вектор начальные условия
+        m_vector_of_h.push_back(0);
 
         std::pair<double, double> coords_with_h; // создаем вектор coords_with_h для хранения точек x и u с шагом h
 
         while (true) {
-            std::pair<double, double> current_coord = data.back(); // получаем текущие координаты (x_n, u_n)
-            
+            std::pair<double, double> current_coord = m_data.back(); // получаем текущие координаты (x_n, u_n)
+
             coords_with_h = RKIV(current_coord.first, current_coord.second, m_h); // получаем точку (x_n+1, u_n+1) с шагом h из точки (x_n, u_n)
             std::pair<double, double> coords_with_half_h = RKIV(current_coord.first, current_coord.second, m_h / 2); //  получаем точку (x_n+1/2, u_n+1/2) из точки (x_n, u_n) с шагом h/2
             std::pair<double, double> coords_with_twice_half_h = RKIV(coords_with_half_h.first, coords_with_half_h.second, m_h / 2); // получаем точку (x_n+1, u_n+1) из точки (x_n+1/2, u_n+1/2) с шагом h / 2
@@ -117,30 +150,28 @@ public:
             Actions_with_H act2 = checkRight(coords_with_h.first); // проверка за выход за правую границу
 
             if (act2 == Actions_with_H::GET_LAST) {
-                m_h = m_b - data.back().first; // устанавливаем шаг, который привидет нас точно в правую грницу m_b
+                m_h = m_b - m_data.back().first; // устанавливаем шаг, который привидет нас точно в правую грницу m_b
             }
             else if (act2 == Actions_with_H::STOP) {
-                data.push_back(coords_with_h); // сохраняем точку
-                vector_of_h.push_back(m_h); // сохраняем шаг
+                m_data.push_back(coords_with_h); // сохраняем точку
+                m_vector_of_h.push_back(m_h); // сохраняем шаг
                 break;
             }
             else if (act2 == Actions_with_H::NOTHING) { // если мы не вышли за правую границу - вернулся статус NOTHING
                 if (act1 == Actions_with_H::MULTIPLY_BY_2) { // если небходимо шаг умножить на два после проверки на лок. погрешность
-                    data.push_back(coords_with_h); // сохраняем точку
-                    vector_of_h.push_back(m_h); // сохраняем шаг
+                    m_data.push_back(coords_with_h); // сохраняем точку
+                    m_vector_of_h.push_back(m_h); // сохраняем шаг
                     m_h *= 2; // умножаем шаг на 2
                 }
                 else if (act1 == Actions_with_H::NOTHING) // если нам ничего не надо делать с шагом, находимся ровно в границе лок. погрешности
                 {
-                    data.push_back(coords_with_h); // сохраняем точку
-                    vector_of_h.push_back(m_h); // сохраняем шаг
+                    m_data.push_back(coords_with_h); // сохраняем точку
+                    m_vector_of_h.push_back(m_h); // сохраняем шаг
                 }
                 else if (act1 == Actions_with_H::DIVIDE_BY_2_AND_RECALCULATE) // если нам надо поделить шаг на два и пересчитать точку
                     m_h /= 2; // делим шаг на два
             }
 
         }
-
-        return data; // возвращаем вектор точек
     }
 };
