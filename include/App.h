@@ -25,7 +25,7 @@ public:
     }
 
 	void init() {
-        m_window.create(sf::VideoMode(640, 480, 32), "ImGui + SFML = <3");
+        m_window.create(sf::VideoMode(1920, 1080, 32), "ImGui + SFML = <3");
         m_window.setFramerateLimit(60);
         ImGui::SFML::Init(m_window);
         ImPlot::CreateContext();
@@ -112,15 +112,27 @@ public:
     }
 
     bool createButton() {
+        ImGuiWindowFlags flags = ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoBackground;
+
+        ImGui::SetNextWindowPos({ 330,0 });
+        ImGui::SetNextWindowSize({ 150,50 });
+
+        ImGui::Begin("Button", 0, flags);
+
+        bool isPressed = false;
+
         if (ImGui::Button("START", { 100,20 })) {
             rk.test_func(0, 1, Task::TEST_FUNC);
-            return true;
+            isPressed = true;
         }
-        else return false;
+        
+        ImGui::End();
+        
+        return isPressed;
     }
 
     void createGraph() {
-        std::vector<std::pair<double, double>> data = rk.analytical_solution();
+        std::vector<std::pair<double, double>> data = rk.getCoordsForAnalytical_Solution();
 
         const int size = data.size();
         double* x = new double[size];
@@ -160,16 +172,32 @@ public:
 
     void createTable() {
         std::vector<double> h = rk.getH();
-        std::vector<std::pair<double, double>> data = rk.analytical_solution();
+        std::vector<std::pair<double, double>> data = rk.getCoords();
+        std::vector<double> twice_half_h_u = rk.getVectorOfTwiceHalfHU();
+        std::vector<double> difference_of_u = rk.getVectorOfDifferenceOfU();
+        std::vector<double> vector_S = rk.getVectorOfS();;
+
+        //int C1 = rk.getC1();
+        //int C2 = rk.getC2();
 
         static ImGuiTableFlags flags = ImGuiTableFlags_Borders | ImGuiTableFlags_RowBg;
-        if (ImGui::BeginTable("table1", 3, flags))
+        
+        ImGui::SetNextWindowPos({ 0,400 });
+        ImGui::SetNextWindowSize({ 1000,1000 });
+        ImGui::Begin("Table");
+        if (ImGui::BeginTable("table1", 9, flags))
         {
             if (true)
             {
+                ImGui::TableSetupColumn("#");
                 ImGui::TableSetupColumn("X");
-                ImGui::TableSetupColumn("U");
+                ImGui::TableSetupColumn("Ui");
+                ImGui::TableSetupColumn("U2i");
+                ImGui::TableSetupColumn("Ui-U2i");
+                ImGui::TableSetupColumn("OLP");
                 ImGui::TableSetupColumn("H");
+                ImGui::TableSetupColumn("C1");
+                ImGui::TableSetupColumn("C2");
                 ImGui::TableHeadersRow();
             }
 
@@ -177,14 +205,27 @@ public:
             {
                 ImGui::TableNextRow();
                 ImGui::TableSetColumnIndex(0);
-                ImGui::Text("%lf", data[row].first);
+                ImGui::Text("%d", row);
                 ImGui::TableSetColumnIndex(1);
-                ImGui::Text("%lf", data[row].second);
+                ImGui::Text("%lf", data[row].first);
                 ImGui::TableSetColumnIndex(2);
+                ImGui::Text("%lf", data[row].second);
+                ImGui::TableSetColumnIndex(3);
+                ImGui::Text("%lf", twice_half_h_u[row]);
+                ImGui::TableSetColumnIndex(4);
+                ImGui::Text("%lf", difference_of_u[row]);
+                ImGui::TableSetColumnIndex(5);
+                ImGui::Text("%lf", vector_S[row]);
+                ImGui::TableSetColumnIndex(6);
+                ImGui::Text("%lf", h[row]);
+                ImGui::TableSetColumnIndex(7);
+                ImGui::Text("%lf", h[row]);
+                ImGui::TableSetColumnIndex(8);
                 ImGui::Text("%lf", h[row]);
             }
             ImGui::EndTable();
         }
+        ImGui::End();
     }
 
     void render() {

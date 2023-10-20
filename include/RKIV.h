@@ -35,11 +35,25 @@ private:
 
     std::vector<double> m_vector_of_h; // веткор для хранения шагов
     std::vector<std::pair<double, double>> m_data; // вектор m_data для хранения точек x и u
+    std::vector<std::pair<double, double>> m_analytical_solution_data; // вектор для хранения аналитического решения
+    std::vector<double> m_twice_half_h_u; // вектор для хранения точек, посчитанных с двойным шагом
+    std::vector<double> difference_of_u; // вектор разности точки с обычным шагом и двойным
+    std::vector<double> vector_S; // вектор ОЛП
+
+    std::vector<int> C1; // вектор кол-во деления шага
+    std::vector<int> C2; // вектор кол-во умножения шага
+
 
     double test_func(double x, double u) { // реализация функции du/dx для тестовой задачи
         // У нас 5-ый №команды => du/dx = (-1)^5*5/2*u => du/dx = -5/2*u
 
         return (-5/2*u);
+    }
+
+    double func_of_first_task(double x, double u) { // реализация фунцкии du/dx для задачи №1
+        // У нас 5-ый №команды => du/dx = ln(x+1)/(x^2+1)
+
+        return (log(x + 1) / (x * x + 1));
     }
 
     double getNewX(double x, double h) { // получаем новый x
@@ -71,7 +85,12 @@ private:
             k3 = test_func(x + h / 2, u + h / 2 * k2); // считаем k3
             k4 = test_func(x + h, u + h * k3); // считаем k4
         }
-
+        else if (task == Task::FIRST_TASK) {
+            k1 = func_of_first_task(x, u); // считаем k1
+            k2 = func_of_first_task(x + h / 2, u + h / 2 * k1); // считаем k2
+            k3 = func_of_first_task(x + h / 2, u + h / 2 * k2); // считаем k3
+            k4 = func_of_first_task(x + h, u + h * k3); // считаем k4
+        }
 
         return (std::make_pair( getNewX(x, h), getNewU({k1,k2,k3,k4}, u, h))); // создаем пару (x,u) из чисел, полученных через getNewX, getNewU
     }
@@ -79,6 +98,8 @@ private:
     Actions_with_H checkUpDown(double u_with_h, double u_with_twice_half_h) {
         
         double S = abs(getS(u_with_h, u_with_twice_half_h)); // получаем S и сразу берем от неё модуль
+
+        vector_S.push_back(S);
 
         //std::cout << m_E_check_down << std::endl;
         //std::cout << S << std::endl;
@@ -107,20 +128,25 @@ private:
 
         m_data.push_back({ x0,u0 }); // пушим в вектор начальные условия
         m_vector_of_h.push_back(0);
+        m_twice_half_h_u.push_back(u0);
 
         std::pair<double, double> coords_with_h; // создаем вектор coords_with_h для хранения точек x и u с шагом h
+
+        int C1count = 0;
+        int C2count = 0;
+
 
         while (true) {
             std::pair<double, double> current_coord = m_data.back(); // получаем текущие координаты (x_n, u_n)
             std::pair<double, double> coords_with_half_h;
             std::pair<double, double> coords_with_twice_half_h;
 
-            if (task == Task::TEST_FUNC) {
-                coords_with_h = RKIV(current_coord.first, current_coord.second, m_h, Task::TEST_FUNC); // получаем точку (x_n+1, u_n+1) с шагом h из точки (x_n, u_n)
-                coords_with_half_h = RKIV(current_coord.first, current_coord.second, m_h / 2, Task::TEST_FUNC); //  получаем точку (x_n+1/2, u_n+1/2) из точки (x_n, u_n) с шагом h/2
-                coords_with_twice_half_h = RKIV(coords_with_half_h.first, coords_with_half_h.second, m_h / 2, Task::TEST_FUNC); // получаем точку (x_n+1, u_n+1) из точки (x_n+1/2, u_n+1/2) с шагом h / 2
-            }
+            coords_with_h = RKIV(current_coord.first, current_coord.second, m_h, task); // получаем точку (x_n+1, u_n+1) с шагом h из точки (x_n, u_n)
+            coords_with_half_h = RKIV(current_coord.first, current_coord.second, m_h / 2, task); //  получаем точку (x_n+1/2, u_n+1/2) из точки (x_n, u_n) с шагом h/2
+            coords_with_twice_half_h = RKIV(coords_with_half_h.first, coords_with_half_h.second, m_h / 2, task); // получаем точку (x_n+1, u_n+1) из точки (x_n+1/2, u_n+1/2) с шагом h / 2
 
+            m_twice_half_h_u.push_back(coords_with_twice_half_h.second);
+            difference_of_u.push_back(coords_with_twice_half_h.second - coords_with_h.second);
 
             Actions_with_H act1 = checkUpDown(coords_with_h.second, coords_with_twice_half_h.second); // проверка на выход за локальную погрешность
             Actions_with_H act2 = checkRight(coords_with_h.first); // проверка за выход за правую границу
@@ -138,17 +164,27 @@ private:
                     m_data.push_back(coords_with_h); // сохраняем точку
                     m_vector_of_h.push_back(m_h); // сохраняем шаг
                     m_h *= 2; // умножаем шаг на 2
+                    //++C2;
                 }
                 else if (act1 == Actions_with_H::NOTHING) // если нам ничего не надо делать с шагом, находимся ровно в границе лок. погрешности
                 {
                     m_data.push_back(coords_with_h); // сохраняем точку
                     m_vector_of_h.push_back(m_h); // сохраняем шаг
                 }
-                else if (act1 == Actions_with_H::DIVIDE_BY_2_AND_RECALCULATE) // если нам надо поделить шаг на два и пересчитать точку
+                else if (act1 == Actions_with_H::DIVIDE_BY_2_AND_RECALCULATE) { // если нам надо поделить шаг на два и пересчитать точку
                     m_h /= 2; // делим шаг на два
+                    //++C1;
+                }
             }
 
         }
+    }
+
+    void analytical_solution() {
+        double h = (m_b - m_a) / m_N_max;
+
+        for (int count = 0; count < m_N_max; ++count)
+            m_analytical_solution_data.push_back({ m_a + count * h, exp(((-5) / 2) * (m_a + count * h)) });
     }
 
 public:
@@ -165,12 +201,49 @@ public:
         m_b = b;
     }
 
+    void clear() {
+        m_data.clear();
+        m_vector_of_h.clear();
+        m_analytical_solution_data.clear();
+        m_twice_half_h_u.clear();
+        difference_of_u.clear();
+        vector_S.clear();
+
+        C1.clear();
+        C2.clear();
+
+    }
+
     std::pair<double, double> getBorder() {
         return { m_a,m_b };
     }
 
     std::vector<std::pair<double, double>> getCoords() {
         return m_data;
+    }
+
+    std::vector<std::pair<double, double>> getCoordsForAnalytical_Solution() {
+        return m_analytical_solution_data;
+    }
+
+    std::vector<double> getVectorOfTwiceHalfHU() {
+        return m_twice_half_h_u;
+    }
+
+    std::vector<double> getVectorOfDifferenceOfU() {
+        return difference_of_u;
+    }
+
+    std::vector<double> getVectorOfS() {
+        return vector_S;
+    }
+
+    std::vector<int> getC1() {
+        return C1;
+    }
+    
+    std::vector<int> getC2() {
+        return C2;
     }
 
     std::vector<double> getH() {
@@ -214,26 +287,9 @@ public:
         
         
         */
+        if (task == Task::TEST_FUNC)
+            analytical_solution();
+        
         calculate(x0, u0, task);
     }
-
-    std::vector<std::pair<double, double>> analytical_solution() {
-        double h = (m_b - m_a) / m_N_max;
-        std::vector<std::pair<double, double>> data;
-
-        for (int count = 0; count < m_N_max; ++count)
-            data.push_back({ m_a + count * h, exp((( - 5) / 2) * ( m_a + count * h))});
-
-        for (int count = 0; count < data.size(); ++count) {
-            std::cout << data[count].first << "\t" << data[count].second << std::endl;
-        }
-
-        return data;
-    }
 };
-
-/*
-
-НАДО ПОЧИНИТЬ БОЛЬШУЮ НАГРУЗКУ И НЕ СЧИТАТЬ КАЖДЫЙ РАЗ ТОЧКИ
-
-*/
