@@ -14,15 +14,15 @@ enum class Actions_with_H { // enum class для установки статуса шага
 };
 
 enum class Task {
-    TEST_FUNC,
-    FIRST_TASK,
-    SECOND_TASK
+    TEST_FUNC = 0,
+    FIRST_TASK = 1,
+    SECOND_TASK = 2
 };
 
 class RK {
 private:
 
-    double m_h = 0.1; // численный шаг интегрирования
+    double m_h_start = 0.1; // численный шаг интегрирования (начальный)
     double m_E_check_right = 0.5 * 10e-6; // проверка для "выхода" справа
     double m_E_check_up = 0.5 * 10e-4; // проверка для "вверха"
     double m_E_check_down = ((m_E_check_up ) / 32); // проверка для "низа"
@@ -137,16 +137,16 @@ private:
         int C1count = 0;
         int C2count = 0;
 
-        std::cout << m_h << "ASDASD" << std::endl;
+        double h = m_h_start;
 
         while (true) {
             std::pair<double, double> current_coord = m_data.back(); // получаем текущие координаты (x_n, u_n)
             std::pair<double, double> coords_with_half_h;
             std::pair<double, double> coords_with_twice_half_h;
 
-            coords_with_h = RKIV(current_coord.first, current_coord.second, m_h, task); // получаем точку (x_n+1, u_n+1) с шагом h из точки (x_n, u_n)
-            coords_with_half_h = RKIV(current_coord.first, current_coord.second, m_h / 2, task); //  получаем точку (x_n+1/2, u_n+1/2) из точки (x_n, u_n) с шагом h/2
-            coords_with_twice_half_h = RKIV(coords_with_half_h.first, coords_with_half_h.second, m_h / 2, task); // получаем точку (x_n+1, u_n+1) из точки (x_n+1/2, u_n+1/2) с шагом h / 2
+            coords_with_h = RKIV(current_coord.first, current_coord.second, h, task); // получаем точку (x_n+1, u_n+1) с шагом h из точки (x_n, u_n)
+            coords_with_half_h = RKIV(current_coord.first, current_coord.second, h / 2, task); //  получаем точку (x_n+1/2, u_n+1/2) из точки (x_n, u_n) с шагом h/2
+            coords_with_twice_half_h = RKIV(coords_with_half_h.first, coords_with_half_h.second, h / 2, task); // получаем точку (x_n+1, u_n+1) из точки (x_n+1/2, u_n+1/2) с шагом h / 2
 
             m_twice_half_h_u.push_back(coords_with_twice_half_h.second);
             difference_of_u.push_back(coords_with_twice_half_h.second - coords_with_h.second);
@@ -155,13 +155,13 @@ private:
             Actions_with_H act2 = checkRight(coords_with_h.first); // проверка за выход за правую границу
 
             if (act2 == Actions_with_H::GET_LAST) {
-                m_h = m_b - m_data.back().first; // устанавливаем шаг, который привидет нас точно в правую грницу m_b
+                h = m_b - m_data.back().first; // устанавливаем шаг, который привидет нас точно в правую грницу m_b
             }
             else if (act2 == Actions_with_H::NOTHING || act2 == Actions_with_H::STOP) { // если мы не вышли за правую границу - вернулся статус NOTHING или мы считаем последнюю точку
                 if (act1 == Actions_with_H::MULTIPLY_BY_2) { // если небходимо шаг умножить на два после проверки на лок. погрешность
                     m_data.push_back(coords_with_h); // сохраняем точку
-                    m_vector_of_h.push_back(m_h); // сохраняем шаг
-                    m_h *= 2; // умножаем шаг на 2
+                    m_vector_of_h.push_back(h); // сохраняем шаг
+                    h *= 2; // умножаем шаг на 2
                     ++C2count;
                     C2.push_back(C2count);
                     C1.push_back(C1count);
@@ -173,7 +173,7 @@ private:
                 else if (act1 == Actions_with_H::NOTHING) // если нам ничего не надо делать с шагом, находимся ровно в границе лок. погрешности
                 {
                     m_data.push_back(coords_with_h); // сохраняем точку
-                    m_vector_of_h.push_back(m_h); // сохраняем шаг
+                    m_vector_of_h.push_back(h); // сохраняем шаг
                     C2.push_back(C2count);
                     C1.push_back(C1count);
                     C2count = C1count = 0;
@@ -182,7 +182,7 @@ private:
                         break;
                 }
                 else if (act1 == Actions_with_H::DIVIDE_BY_2_AND_RECALCULATE) { // если нам надо поделить шаг на два и пересчитать точку
-                    m_h /= 2; // делим шаг на два
+                    h /= 2; // делим шаг на два
                     ++C1count;
                 }
             }
@@ -211,7 +211,7 @@ public:
         m_b = b;
     }
 
-    void clear() {
+    void clear_data() {
         m_vector_of_h.clear(); // веткор для хранения шагов
         m_data.clear(); // вектор m_data для хранения точек x и u
         m_analytical_solution_data.clear(); // вектор для хранения аналитического решения
@@ -220,17 +220,6 @@ public:
         vector_S.clear(); // вектор ОЛП
         C1.clear(); // вектор кол-во деления шага
         C2.clear(); // вектор кол-во умножения шага
-
-        m_h = 0.1; // численный шаг интегрирования
-        m_E_check_right = 0.5 * 10e-6; // проверка для "выхода" справа
-        m_E_check_up = 0.5 * 10e-4; // проверка для "вверха"
-        m_E_check_down = ((m_E_check_up) / 32); // проверка для "низа"
-
-        m_a = 0; // левая граница
-        m_b = 1; // правая граница
-
-        m_N_max = 100; // максимальное число шагов
-        p = 4; // порядок метода
     }
 
     std::pair<double, double> getBorder() {
@@ -278,7 +267,7 @@ public:
     }
 
     void set_Start_H(double h) {
-        m_h = h;
+        m_h_start = h;
     }
 
     double get_E_right() {
@@ -290,7 +279,7 @@ public:
     }
 
     double get_Start_H() {
-        return m_h;
+        return m_h_start;
     }
 
     void test_func(double x0, double u0, Task task) {
