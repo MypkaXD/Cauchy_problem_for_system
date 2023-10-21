@@ -215,20 +215,20 @@ private:
 
         std::pair<double, double> coords_with_h; // создаем вектор coords_with_h дл€ хранени€ точек x и u с шагом h
 
-        double h = (m_b-m_a)/m_N_max;
+        double h = (m_b - m_a) / m_N_max;
 
         while (true) {
             std::pair<double, double> current_coord = m_data.back(); // получаем текущие координаты (x_n, u_n)
 
             coords_with_h = RKIV(current_coord.first, current_coord.second, h, task); // получаем точку (x_n+1, u_n+1) с шагом h из точки (x_n, u_n)
 
-            Actions_with_H act2 = checkRight(coords_with_h.first); // проверка за выход за правую границу
+            Actions_with_H act = checkRight(coords_with_h.first); // проверка за выход за правую границу
 
-            if (act2 == Actions_with_H::NOTHING) { // если мы не вышли за правую границу - вернулс€ статус NOTHING или мы считаем последнюю точку
+            if (act == Actions_with_H::NOTHING) { // если мы не вышли за правую границу - вернулс€ статус NOTHING или мы считаем последнюю точку
                 m_data.push_back(coords_with_h); // сохран€ем точку
                 m_vector_of_h.push_back(h); // сохран€ем шаг
             }
-            else if (act2 == Actions_with_H::STOP) {
+            else if (act == Actions_with_H::STOP || act == Actions_with_H::GET_LAST) {
                 m_data.push_back(coords_with_h); // сохран€ем точку
                 m_vector_of_h.push_back(h); // сохран€ем шаг
                 break;
@@ -360,24 +360,11 @@ public:
     }
 
     void run_func(double x0, double u0, Task task, bool isConstH) {
-        /*
-        »де€:
-            —оздать три функции дл€ трех задач.  ажда€ функци€ будет запускать run(x0,u0)
-            ƒл€ тестовой задачи необходимо решить численно и аналитически =>
-            Ѕудет два вектора пар точек:
-                1) ¬ектор с численным решением
-                2) ¬ектор с аналитическим решением
-            Ќадо будет как-то передать в run, какую функцию использовать в RKIV.
-            Ќапример, можно сделать enum_class с 3-ем€ элементами
-        
-        
-        */
         if (task == Task::TEST_FUNC)
             analytical_solution();
         if (!isConstH)
             calculate_with_e(x0, u0, task);
-        else {
+        else
             calculate_with_constH(x0,u0,task);
-        }
     }
 };

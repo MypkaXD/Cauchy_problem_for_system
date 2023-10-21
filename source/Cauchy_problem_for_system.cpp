@@ -22,5 +22,9 @@ int main() {
     app.init();
     app.run();
     
+    //RK rk;
+    //rk.run_func(0, 1, Task::FIRST_TASK, true);
+
+
     return 0;
 }

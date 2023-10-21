@@ -64,7 +64,7 @@ public:
                 ++check; // если нажата
             if (check > 0) { // если кнопка была нажата
                 createGraph(flagsForWindows, item_current_idx); // рисуем график
-                createTable(flagsForWindows, item_current_idx); // создаем таблицу
+                //createTable(flagsForWindows, item_current_idx); // создаем таблицу
             }
 
             m_window.clear();
