@@ -50,23 +50,93 @@ public:
             static double x0 = 0;
             static double u0 = 1;
             static ImGuiWindowFlags flagsForWindows = ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoCollapse;
+            static bool isConstH = false;
 
             MakeWindowForInput(flagsForWindows); // вызываем функцию для создания окна для ввода шага и епсилон-границ
             MakeWindowForTasks(item_current_idx, flagsForWindows); // вызываем функцию по созданию окна с всплывающим списком задач
             MakeWindowForInputInitialСonditions(x0,u0, flagsForWindows); // вызываем функцию по созданию окна для ввода начальных условий
+            makeWindowForInputBorder(flagsForWindows);
+            makeWindowForCheckBoxAboutE(flagsForWindows, isConstH);
 
             static int check; // переменная для отслеживания нажатия кнопки "START"
             
-            if (createButton(x0,u0, flagsForWindows, item_current_idx)) // создаем кнопку и проверяем, была ли она нажата
+            if (createButton(x0,u0, flagsForWindows, item_current_idx, isConstH)) // создаем кнопку и проверяем, была ли она нажата
                 ++check; // если нажата
             if (check > 0) { // если кнопка была нажата
                 createGraph(flagsForWindows, item_current_idx); // рисуем график
-                createTable(); // создаем таблицу
+                createTable(flagsForWindows, item_current_idx); // создаем таблицу
             }
 
             m_window.clear();
             render();
         }
+    }
+
+    void makeWindowForCheckBoxAboutE(ImGuiWindowFlags& flagsForWindows, bool& isConstH) {
+
+        ImGui::SetNextWindowPos({ 682,141 }); // устанавливаем позицию для будущего окна
+        ImGui::SetNextWindowSize({ 330,79 }); 
+
+        ImGui::Begin("Checkbox", 0, flagsForWindows); // создаем окно с выбранными 
+
+        (ImGui::Checkbox("CONST H", &isConstH));
+
+        int N = rk.getN();
+
+        if (ImGui::InputInt("Count of N", &N, 1, 10, 0)) {
+            rk.setN(N);
+        }
+
+        ImGui::End();
+
+    }
+
+    void makeWindowForInputBorder(ImGuiWindowFlags& flagsForWindows) {
+
+        ImGui::SetNextWindowPos({ 682,0 }); // устанавливаем позицию для будущего окна
+        ImGui::SetNextWindowSize({ 330,140 }); // устанвливаем размер для будущего окна = 330*140
+
+        ImGui::Begin("Input Border", 0, flagsForWindows); // создаем окно с выбранными настройками
+
+        createInputBorderA(flagsForWindows);
+        createInputBorderB(flagsForWindows);
+
+        ImGui::End(); // удаляем окно
+    }
+
+    void createInputBorderA(ImGuiWindowFlags flagsForWindows) {
+
+        flagsForWindows |= ImGuiWindowFlags_NoBackground; // дополнительная настройка для окна, чтобы не было заднего фона
+
+        ImGui::BeginChild("Input A", { 300,60 }, true, flagsForWindows); // Создаем дочернеё окно с размером 300*60 и настройками-flags
+
+        ImGui::SeparatorText("Input A"); // дополнительный текст в окне
+
+        double a = rk.getBorder().first;
+        double max_for_a = rk.getBorder().second - 0.0001;
+        static double min_for_a = -INFINITY;
+
+        if (ImGui::DragScalar(" ", ImGuiDataType_Double, &a, 0.0005f, &min_for_a, &max_for_a, "%.10f", ImGuiSliderFlags_AlwaysClamp)) 
+            rk.setBorderA(a);
+
+        ImGui::EndChild();
+    }
+
+    void createInputBorderB(ImGuiWindowFlags flagsForWindows) {
+        flagsForWindows |= ImGuiWindowFlags_NoBackground; // дополнительная настройка для окна, чтобы не было заднего фона
+
+        ImGui::BeginChild("Input B", { 300,60 }, true, flagsForWindows); // Создаем дочернеё окно с размером 300*60 и настройками-flags
+
+        ImGui::SeparatorText("Input B"); // дополнительный текст в окне
+
+        double b = rk.getBorder().second;
+        static double max_for_b = +INFINITY;
+        double min_for_b = rk.getBorder().first + 0.0001;
+
+        if (ImGui::DragScalar(" ", ImGuiDataType_Double, &b, 0.0005f, &min_for_b, &max_for_b, "%.10f", ImGuiSliderFlags_AlwaysClamp))
+            rk.setBorderB(b);
+
+        ImGui::EndChild(); // удаляем дочернее окно
     }
 
     void MakeWindowForInputInitialСonditions(double& x0, double& u0, ImGuiWindowFlags& flagsForWindows) { // Создаем окно для ввода начальных условий
@@ -135,6 +205,21 @@ public:
         ImGui::End(); // удаляем окно
     }
 
+    //void clearTableAndGraph(ImGuiWindowFlags& flagsForWindows) {
+    //    ImGui::SetNextWindowSize({ 960,860 }); // устанавливаем размер для окна с графиком
+    //    ImGui::SetNextWindowPos({ 960,220 }); // устанавливаем позицию для окна с графиком
+    //
+    //    ImGui::Begin("My Window", 0, flagsForWindows); // создаем окно с выбранными настройками
+    //    
+    //    ImGui::End(); // Удаляем окно
+    //
+    //    ImGui::SetNextWindowPos({ 0,220 }); // устанавливаем позицию для создаваемого окна для таблицы
+    //    ImGui::SetNextWindowSize({ 960,860 }); // устанавливаем размер для создаваемого окна для таблицы
+    //    ImGui::Begin("Table", 0, flagsForWindows); // создаем окно с заданными настройками
+    //
+    //    ImGui::End(); // удаляем окно
+    //}
+
     void MakeWindowForInput(ImGuiWindowFlags& flagsForWindows) { // функцию для создания окна для ввода шага и епсилон-границ
         
         ImGui::SetNextWindowPos({ 351,0 }); // устанавливаем позицию для будущего окна
@@ -158,9 +243,9 @@ public:
         ImGui::SeparatorText("Input E local"); // дополнительный текст Input E local
 
         static double input_e_local = rk.get_E_local(); // переменная input_e_local из класса RK
-        static double max2 = 1.0; // max значение для input_e_local
-        static double min2 = 0.000000001; // min значение для input_e_local
-        if (ImGui::DragScalar(" ", ImGuiDataType_Double, &input_e_local, 0.0005f, &min2, &max2, "%.10f")) // создает поле для ввода данных и если были введены какие-то данные, то
+        static double max = 1.0; // max значение для input_e_local
+        static double min = 0.000000001; // min значение для input_e_local
+        if (ImGui::DragScalar(" ", ImGuiDataType_Double, &input_e_local, 0.0005f, &min, &max, "%.10f", ImGuiSliderFlags_AlwaysClamp)) // создает поле для ввода данных и если были введены какие-то данные, то
             rk.set_E_local(input_e_local); // устанавливается значение для m_E_check_up в классе RK
 
         ImGui::EndChild(); // дочернее окно удаляется
@@ -175,10 +260,10 @@ public:
         ImGui::SeparatorText("Input E right"); // дополнительный текст Input E right
 
         static double input_e_right = rk.get_E_right(); // переменная input_e_right из класса RK
-        static double max1 = 1.0; // max значение для input_e_right
-        static double min1 = 0.000000001; // min значение для input_e_right
+        static double max = 1.0; // max значение для input_e_right
+        static double min = 0.000000001; // min значение для input_e_right
 
-        if (ImGui::DragScalar(" ", ImGuiDataType_Double, &input_e_right, 0.0005f, &min1, &max1, "%.10f")) // создает поле для ввода данных и если были введены какие-то данные, то
+        if (ImGui::DragScalar(" ", ImGuiDataType_Double, &input_e_right, 0.0005f, &min, &max, "%.10f", ImGuiSliderFlags_AlwaysClamp)) // создает поле для ввода данных и если были введены какие-то данные, то
             rk.set_E_right(input_e_right); // устанавливается значение для m_E_check_right в классе RK
 
         ImGui::EndChild(); // дочернее окно удаляется
@@ -196,13 +281,13 @@ public:
         static double max = 1.0; // max значение для input_h
         static double min = 0.0000001; // min значение для input_h
 
-        if (ImGui::DragScalar(" ", ImGuiDataType_Double, &input_h, 0.0005f, &min, &max, "%.10f")) // создает поле для ввода данных и если были введены какие-то данные, то
+        if (ImGui::DragScalar(" ", ImGuiDataType_Double, &input_h, 0.0005f, &min, &max, "%.10f", ImGuiSliderFlags_AlwaysClamp)) // создает поле для ввода данных и если были введены какие-то данные, то
             rk.set_Start_H(input_h); // устанавливается значение для m_h в классе RK
 
         ImGui::EndChild(); // дочернее окно удаляется
     }
 
-    bool createButton(double& x0, double& u0, ImGuiWindowFlags& flagsForWindows, int& item_current_idx) { // функция для создания кнопки, чтобы начать работу методом РК-4
+    bool createButton(double& x0, double& u0, ImGuiWindowFlags& flagsForWindows, int& item_current_idx, bool& isConstH) { // функция для создания кнопки, чтобы начать работу методом РК-4
 
         ImGui::SetNextWindowPos({ 0,181 }); // устанавливаем позицию для создаваемого окна
         ImGui::SetNextWindowSize({ 350,39 }); // устанавливаем размер для создаваемого окна
@@ -213,9 +298,10 @@ public:
 
         if (ImGui::Button("START", { 100,20 })) { // создаем кнопку с размерами 100*20
             rk.clear_data(); // очищаем значения векторов с прошлой задачи
-            rk.run_func(x0, u0, (Task)item_current_idx); // считаем задачу коши в точке (x0,u0)
+            rk.run_func(x0, u0, (Task)item_current_idx, isConstH); // считаем задачу коши в точке (x0,u0)
             isPressed = true; // устанвливаем для переменной isPressed, что она была нажата
         }
+
         ImGui::SameLine(); // в той же строке
         ImGui::Text("Start Calc"); // пишем Start Calc
 
@@ -248,12 +334,10 @@ public:
             y_of_numerical_solution[count] = (data_for_numerical_solution[count].second);
         }
 
-        std::cout << size_of_numerical_solution << std::endl;
-
         ImGui::SetNextWindowSize({ 960,860 }); // устанавливаем размер для окна с графиком
         ImGui::SetNextWindowPos({ 960,220 }); // устанавливаем позицию для окна с графиком
 
-        ImGui::Begin("My Window", 0, flagsForWindows); // создаем окно с выбранными настройками
+        ImGui::Begin("Graph", 0, flagsForWindows); // создаем окно с выбранными настройками
 
         if (ImPlot::BeginPlot("Solution schedule", { 940,780 })) { // отрисовываем график
             if (item_current_idx == 0) // если у нас тестовая задача, то надо нарисовать еще аналитическое решение
@@ -264,22 +348,34 @@ public:
         ImGui::End(); // удаляем окно
     }
 
-    void createTable() {
-        std::vector<double> h = rk.getH();
-        std::vector<std::pair<double, double>> data = rk.getCoords();
-        std::vector<double> twice_half_h_u = rk.getVectorOfTwiceHalfHU();
-        std::vector<double> difference_of_u = rk.getVectorOfDifferenceOfU();
-        std::vector<double> vector_S = rk.getVectorOfS();;
+    void createTable(ImGuiWindowFlags& flagsForWindows, int& item_current_idx) {
+        std::vector<double> vector_of_h = rk.getH(); // создаем вектор значений шагов
+        std::vector<std::pair<double, double>> data_for_numerical_solution = rk.getCoords(); // создаем вектор координат, полученных чсиленным решением
+        std::vector<double> twice_half_h_u = rk.getVectorOfTwiceHalfHU(); // вектор координат v^i
+        std::vector<double> difference_of_v = rk.getVectorOfDifferenceOfV(); // вектор vi-v^i
+        std::vector<double> vector_S = rk.getVectorOfS(); // вектор ОЛП
 
-        std::vector<int> C1 = rk.getC1();
-        std::vector<int> C2 = rk.getC2();
+        std::vector<double> difference_of_u;
+        std::vector<double> coordsOfU;
 
-        static ImGuiTableFlags flags = ImGuiTableFlags_Borders | ImGuiTableFlags_RowBg;
-        ImGuiWindowFlags flagsW = ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoCollapse;
-        ImGui::SetNextWindowPos({ 0,220 });
-        ImGui::SetNextWindowSize({ 960,860 });
-        ImGui::Begin("Table", 0 ,flagsW);
-        if (ImGui::BeginTable("table1", 9, flags))
+        int size = 9;
+
+        if (item_current_idx == 0) {
+            difference_of_u = rk.getVectorOfDifferenceU();
+            coordsOfU = rk.getCoordsOfU();
+            size += 2;
+        }
+
+        std::vector<int> C1 = rk.getC1(); // вектор делений шагов 
+        std::vector<int> C2 = rk.getC2(); // вектор умножений шагов
+
+        static ImGuiTableFlags flags = ImGuiTableFlags_Borders | ImGuiTableFlags_RowBg; // настройки для таблицы
+
+        ImGui::SetNextWindowPos({ 0,220 }); // устанавливаем позицию для создаваемого окна для таблицы
+        ImGui::SetNextWindowSize({ 960,790 }); // устанавливаем размер для создаваемого окна для таблицы
+        ImGui::Begin("Table", 0 , flagsForWindows); // создаем окно с заданными настройками
+        
+        if (ImGui::BeginTable("table1", size, flags)) // создаем таблицу с заданными настройками
         {
             if (true)
             {
@@ -292,30 +388,40 @@ public:
                 ImGui::TableSetupColumn("Hi");
                 ImGui::TableSetupColumn("divisions", ImGuiTableColumnFlags_WidthFixed);
                 ImGui::TableSetupColumn("doublings", ImGuiTableColumnFlags_WidthFixed);
+                if (item_current_idx == 0) {
+                    ImGui::TableSetupColumn("Ui");
+                    ImGui::TableSetupColumn("|Ui-Vi|");
+                }
                 ImGui::TableHeadersRow();
             }
 
-            for (int row = 0; row < h.size(); row++)
+            for (int row = 0; row < vector_of_h.size(); row++)
             {
                 ImGui::TableNextRow();
                 ImGui::TableSetColumnIndex(0);
                 ImGui::Text("%d", row);
                 ImGui::TableSetColumnIndex(1);
-                ImGui::Text("%.12lf", data[row].first);
+                ImGui::Text("%.12lf", data_for_numerical_solution[row].first);
                 ImGui::TableSetColumnIndex(2);
-                ImGui::Text("%.12lf", data[row].second);
+                ImGui::Text("%.12lf", data_for_numerical_solution[row].second);
                 ImGui::TableSetColumnIndex(3);
                 ImGui::Text("%.12lf", twice_half_h_u[row]);
                 ImGui::TableSetColumnIndex(4);
-                ImGui::Text("%.12lf", difference_of_u[row]);
+                ImGui::Text("%.12lf", difference_of_v[row]);
                 ImGui::TableSetColumnIndex(5);
                 ImGui::Text("%.16lf", vector_S[row]);
                 ImGui::TableSetColumnIndex(6);
-                ImGui::Text("%.12lf", h[row]);
+                ImGui::Text("%.12lf", vector_of_h[row]);
                 ImGui::TableSetColumnIndex(7);
                 ImGui::Text("%d", C1[row]);
                 ImGui::TableSetColumnIndex(8);
                 ImGui::Text("%d", C2[row]);
+                //if (item_current_idx == 0) {
+                //    ImGui::TableSetColumnIndex(9);
+                //    ImGui::Text("%.12lf", coordsOfU[row]);
+                //    ImGui::TableSetColumnIndex(10);
+                //    ImGui::Text("%.12lf", difference_of_u[row]);
+                //}
             }
             ImGui::EndTable();
         }
