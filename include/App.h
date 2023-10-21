@@ -25,7 +25,7 @@ public:
     }
 
 	void init() {
-        m_window.create(sf::VideoMode(1920, 1080, 32), "ImGui + SFML = <3");
+        m_window.create(sf::VideoMode(1920, 1080, 32), "Cauchy problem");
         m_window.setFramerateLimit(60);
         ImGui::SFML::Init(m_window);
         ImPlot::CreateContext();
@@ -45,11 +45,22 @@ public:
                 }
             }
             ImGui::SFML::Update(m_window, deltaClock.restart());
+            
+            static int item_current_idx = 0; // Here we store our selection data as an index.
+            static double x0 = 0;
+            static double u0 = 1;
+
+
+            MakeWindowForInput();
+            MakeWindowForTasks(item_current_idx);
+            MakeWindowForInputInitial—onditions(x0,u0);
+
+            std::cout << "You selected: " << item_current_idx << std::endl;
+            std::cout << "X: " << x0 << std::endl;
+            std::cout << "U: " << u0 << std::endl;
 
             static int check;
             
-            MakeWindowForInput();
-
             if (createButton()) {
                 ++check;
             }
@@ -58,14 +69,73 @@ public:
                 createGraph();
                 createTable();
             }
+            
+
 
             m_window.clear();
             render();
         }
     }
 
-    void MakeWindowForInput() {
+    void MakeWindowForInputInitial—onditions(double& x0, double& u0) {
+        ImGui::SetNextWindowPos({ 0,41 });
+        ImGui::SetNextWindowSize({ 350,140 });
+
+        ImGuiWindowFlags flags = ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoCollapse;
+
+        ImGui::Begin("Iput start", 0, flags);
+        createInputX(x0, flags);
+        createInputU(u0, flags);
+        ImGui::End();
+    }
+
+    void createInputX(double& x0, ImGuiWindowFlags flags) {
+        flags |= ImGuiWindowFlags_NoBackground;
+
+        ImGui::BeginChild("Input X", { 300,60 }, true, flags);
+        ImGui::SeparatorText("Input X");
+        ImGui::InputDouble(" ", &x0, 0.01f, 1.0f, "%.8f");
+        ImGui::EndChild();
+    }
+
+    void createInputU(double& u0, ImGuiWindowFlags flags) {
+        flags |= ImGuiWindowFlags_NoBackground;
+
+        ImGui::BeginChild("Input U", { 300,60 }, true, flags);
+        ImGui::SeparatorText("Input U");
+        ImGui::InputDouble(" ", &u0, 0.01f, 1.0f, "%.8f");
+        ImGui::EndChild();
+    }
+
+    void MakeWindowForTasks(int& item_current_idx) {
         ImGui::SetNextWindowPos({ 0,0 });
+        ImGui::SetNextWindowSize({ 350,40 });
+        ImGuiWindowFlags flags = ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoCollapse;
+
+        ImGui::Begin("Select Task", 0, flags);
+
+        const char* items[] = { "Test", "First", "Second" };
+        const char* combo_preview_value = items[item_current_idx];  // Pass in the preview value visible before opening the combo (it could be anything)
+        if (ImGui::BeginCombo("Select the task", combo_preview_value))
+        {
+            for (int n = 0; n < IM_ARRAYSIZE(items); n++)
+            {
+                const bool is_selected = (item_current_idx == n);
+                if (ImGui::Selectable(items[n], is_selected))
+                    item_current_idx = n;
+
+                // Set the initial focus when opening the combo (scrolling + keyboard navigation focus)
+                if (is_selected)
+                    ImGui::SetItemDefaultFocus();
+            }
+            ImGui::EndCombo();
+        }
+
+        ImGui::End();
+    }
+
+    void MakeWindowForInput() {
+        ImGui::SetNextWindowPos({ 351,0 });
         ImGui::SetNextWindowSize({ 330,220});
         ImGuiWindowFlags flags = ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoCollapse;
         ImGui::Begin("InPut", 0 ,flags);
@@ -106,26 +176,32 @@ public:
         static double input_h = rk.get_Start_H();
         static double max = 1.0;
         static double min = 0.0000001;
-        if (ImGui::DragScalar(" " , ImGuiDataType_Double, &input_h, 0.0005f, &min, &max, "%.10f"))
+        if (ImGui::DragScalar(" ", ImGuiDataType_Double, &input_h, 0.0005f, &min, &max, "%.10f")) {
             rk.set_Start_H(input_h);
+            std::cout << input_h << std::endl;
+        }
+
         ImGui::EndChild();
     }
 
     bool createButton() {
-        ImGuiWindowFlags flags = ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoBackground;
+        ImGuiWindowFlags flags = ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoCollapse;
 
-        ImGui::SetNextWindowPos({ 330,0 });
-        ImGui::SetNextWindowSize({ 150,50 });
+        ImGui::SetNextWindowPos({ 0,181 });
+        ImGui::SetNextWindowSize({ 350,39 });
 
         ImGui::Begin("Button", 0, flags);
 
         bool isPressed = false;
 
         if (ImGui::Button("START", { 100,20 })) {
-            rk.test_func(0, 1, Task::TEST_FUNC);
+            rk.clear();
+            rk.test_func(0, 1, Task::FIRST_TASK);
             isPressed = true;
         }
-        
+        ImGui::SameLine();
+        ImGui::Text("Start Calc");
+
         ImGui::End();
         
         return isPressed;
@@ -177,13 +253,13 @@ public:
         std::vector<double> difference_of_u = rk.getVectorOfDifferenceOfU();
         std::vector<double> vector_S = rk.getVectorOfS();;
 
-        //int C1 = rk.getC1();
-        //int C2 = rk.getC2();
+        std::vector<int> C1 = rk.getC1();
+        std::vector<int> C2 = rk.getC2();
 
         static ImGuiTableFlags flags = ImGuiTableFlags_Borders | ImGuiTableFlags_RowBg;
         
-        ImGui::SetNextWindowPos({ 0,400 });
-        ImGui::SetNextWindowSize({ 1000,1000 });
+        ImGui::SetNextWindowPos({ 0,220 });
+        ImGui::SetNextWindowSize({ 960,860 });
         ImGui::Begin("Table");
         if (ImGui::BeginTable("table1", 9, flags))
         {
@@ -215,13 +291,13 @@ public:
                 ImGui::TableSetColumnIndex(4);
                 ImGui::Text("%lf", difference_of_u[row]);
                 ImGui::TableSetColumnIndex(5);
-                ImGui::Text("%lf", vector_S[row]);
+                ImGui::Text("%.12lf", vector_S[row]);
                 ImGui::TableSetColumnIndex(6);
-                ImGui::Text("%lf", h[row]);
+                ImGui::Text("%.12lf", h[row]);
                 ImGui::TableSetColumnIndex(7);
-                ImGui::Text("%lf", h[row]);
+                ImGui::Text("%d", C1[row]);
                 ImGui::TableSetColumnIndex(8);
-                ImGui::Text("%lf", h[row]);
+                ImGui::Text("%d", C2[row]);
             }
             ImGui::EndTable();
         }
@@ -233,3 +309,10 @@ public:
         m_window.display();
     }
 };
+
+
+/*
+
+—ƒÂÎ‡Ú¸ ËÌËˆ ÙÎ‡„Ó‚ Ó‰ËÌ ‡Á Ë ÔÂÂ‰‡‚‡Ú¸ ‚ ÙÛÌÍˆËË
+
+*/

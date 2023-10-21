@@ -121,7 +121,7 @@ private:
         else if (x == m_b)
             return Actions_with_H::STOP; // если мы попали ровно на правую границу, то мы получаем последний элемент и заканчиваем
         else if (x <= m_b - m_E_check_right)
-            return Actions_with_H::NOTHING; // если мы попали левее эпсилон-правой-границы, то ничего не делаем и продолжаем работу
+            return Actions_with_H::NOTHING; // если мы попали левее эпсилон - правая-граница, то ничего не делаем и продолжаем работу
     }
 
     void calculate(double x0, double u0, Task task) {
@@ -129,12 +129,15 @@ private:
         m_data.push_back({ x0,u0 }); // пушим в вектор начальные условия
         m_vector_of_h.push_back(0);
         m_twice_half_h_u.push_back(u0);
+        C2.push_back(0);
+        C1.push_back(0);
 
         std::pair<double, double> coords_with_h; // создаем вектор coords_with_h для хранения точек x и u с шагом h
 
         int C1count = 0;
         int C2count = 0;
 
+        std::cout << m_h << "ASDASD" << std::endl;
 
         while (true) {
             std::pair<double, double> current_coord = m_data.back(); // получаем текущие координаты (x_n, u_n)
@@ -154,26 +157,33 @@ private:
             if (act2 == Actions_with_H::GET_LAST) {
                 m_h = m_b - m_data.back().first; // устанавливаем шаг, который привидет нас точно в правую грницу m_b
             }
-            else if (act2 == Actions_with_H::STOP) {
-                m_data.push_back(coords_with_h); // сохраняем точку
-                m_vector_of_h.push_back(m_h); // сохраняем шаг
-                break;
-            }
-            else if (act2 == Actions_with_H::NOTHING) { // если мы не вышли за правую границу - вернулся статус NOTHING
+            else if (act2 == Actions_with_H::NOTHING || act2 == Actions_with_H::STOP) { // если мы не вышли за правую границу - вернулся статус NOTHING или мы считаем последнюю точку
                 if (act1 == Actions_with_H::MULTIPLY_BY_2) { // если небходимо шаг умножить на два после проверки на лок. погрешность
                     m_data.push_back(coords_with_h); // сохраняем точку
                     m_vector_of_h.push_back(m_h); // сохраняем шаг
                     m_h *= 2; // умножаем шаг на 2
-                    //++C2;
+                    ++C2count;
+                    C2.push_back(C2count);
+                    C1.push_back(C1count);
+                    C2count = C1count = 0;
+
+                    if (act2 == Actions_with_H::STOP)
+                        break;
                 }
                 else if (act1 == Actions_with_H::NOTHING) // если нам ничего не надо делать с шагом, находимся ровно в границе лок. погрешности
                 {
                     m_data.push_back(coords_with_h); // сохраняем точку
                     m_vector_of_h.push_back(m_h); // сохраняем шаг
+                    C2.push_back(C2count);
+                    C1.push_back(C1count);
+                    C2count = C1count = 0;
+
+                    if (act2 == Actions_with_H::STOP)
+                        break;
                 }
                 else if (act1 == Actions_with_H::DIVIDE_BY_2_AND_RECALCULATE) { // если нам надо поделить шаг на два и пересчитать точку
                     m_h /= 2; // делим шаг на два
-                    //++C1;
+                    ++C1count;
                 }
             }
 
@@ -202,16 +212,25 @@ public:
     }
 
     void clear() {
-        m_data.clear();
-        m_vector_of_h.clear();
-        m_analytical_solution_data.clear();
-        m_twice_half_h_u.clear();
-        difference_of_u.clear();
-        vector_S.clear();
+        m_vector_of_h.clear(); // веткор для хранения шагов
+        m_data.clear(); // вектор m_data для хранения точек x и u
+        m_analytical_solution_data.clear(); // вектор для хранения аналитического решения
+        m_twice_half_h_u.clear(); // вектор для хранения точек, посчитанных с двойным шагом
+        difference_of_u.clear(); // вектор разности точки с обычным шагом и двойным
+        vector_S.clear(); // вектор ОЛП
+        C1.clear(); // вектор кол-во деления шага
+        C2.clear(); // вектор кол-во умножения шага
 
-        C1.clear();
-        C2.clear();
+        m_h = 0.1; // численный шаг интегрирования
+        m_E_check_right = 0.5 * 10e-6; // проверка для "выхода" справа
+        m_E_check_up = 0.5 * 10e-4; // проверка для "вверха"
+        m_E_check_down = ((m_E_check_up) / 32); // проверка для "низа"
 
+        m_a = 0; // левая граница
+        m_b = 1; // правая граница
+
+        m_N_max = 100; // максимальное число шагов
+        p = 4; // порядок метода
     }
 
     std::pair<double, double> getBorder() {
