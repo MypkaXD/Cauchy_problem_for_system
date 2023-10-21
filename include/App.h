@@ -46,7 +46,7 @@ public:
             }
             ImGui::SFML::Update(m_window, deltaClock.restart());
             
-            static int item_current_idx = 0; // Here we store our selection data as an index.
+            static int item_current_idx = 0;
             static double x0 = 0;
             static double u0 = 1;
             static ImGuiWindowFlags flagsForWindows = ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoCollapse;
@@ -55,22 +55,14 @@ public:
             MakeWindowForTasks(item_current_idx, flagsForWindows); // вызываем функцию по созданию окна с всплывающим списком задач
             MakeWindowForInputInitialСonditions(x0,u0, flagsForWindows); // вызываем функцию по созданию окна для ввода начальных условий
 
-            std::cout << "You selected: " << item_current_idx << std::endl;
-            std::cout << "X: " << x0 << std::endl;
-            std::cout << "U: " << u0 << std::endl;
-
-            static int check;
+            static int check; // переменная для отслеживания нажатия кнопки "START"
             
-            if (createButton(x0,u0, flagsForWindows, item_current_idx)) {
-                ++check;
+            if (createButton(x0,u0, flagsForWindows, item_current_idx)) // создаем кнопку и проверяем, была ли она нажата
+                ++check; // если нажата
+            if (check > 0) { // если кнопка была нажата
+                createGraph(flagsForWindows, item_current_idx); // рисуем график
+                createTable(); // создаем таблицу
             }
-
-            if (check & 1) {
-                createGraph();
-                createTable();
-            }
-            
-
 
             m_window.clear();
             render();
@@ -96,7 +88,7 @@ public:
 
         ImGui::BeginChild("Input X", { 300,60 }, true, flagsForWindows); // Создаем дочернеё окно с размером 300*60 и настройками-flags
 
-        ImGui::SeparatorText("Input X"); // дополнительный текст в окне
+        ImGui::SeparatorText("Input X0"); // дополнительный текст в окне
 
         ImGui::InputDouble(" ", &x0, 0.01f, 1.0f, "%.8f"); // поле для ввода double x
 
@@ -109,7 +101,7 @@ public:
 
         ImGui::BeginChild("Input U", { 300,60 }, true, flagsForWindows); // Создаем дочернеё окно с размером 300*60 и настройками-flags
 
-        ImGui::SeparatorText("Input U"); // дополнительный текст в окне
+        ImGui::SeparatorText("Input U0"); // дополнительный текст в окне
 
         ImGui::InputDouble(" ", &u0, 0.01f, 1.0f, "%.8f"); // поле для ввода double u
 
@@ -219,63 +211,57 @@ public:
 
         bool isPressed = false; // создаем переменную, показывающую была ли нажата кнопка
 
-        /*
-            Проблема:
-                По программе, каждый раз шаг меняется. В конце шаг отличается от начального. Если мы ввели шаг сами, то он поменялся
-                Надо почистить вектора каждый раз, чтобы не захламлять их мусором
-                Идея ввести начальный шаг
-        */
-
         if (ImGui::Button("START", { 100,20 })) { // создаем кнопку с размерами 100*20
-            rk.clear_data();
-            rk.test_func(x0, u0, (Task)item_current_idx);
-            isPressed = true;
+            rk.clear_data(); // очищаем значения векторов с прошлой задачи
+            rk.run_func(x0, u0, (Task)item_current_idx); // считаем задачу коши в точке (x0,u0)
+            isPressed = true; // устанвливаем для переменной isPressed, что она была нажата
         }
-        ImGui::SameLine();
-        ImGui::Text("Start Calc");
+        ImGui::SameLine(); // в той же строке
+        ImGui::Text("Start Calc"); // пишем Start Calc
 
-        ImGui::End();
+        ImGui::End(); // удаляем окно
         
-        return isPressed;
+        return isPressed; // возврщаем значение isPressed
     }
 
-    void createGraph() {
-        std::vector<std::pair<double, double>> data = rk.getCoordsForAnalytical_Solution();
+    void createGraph(ImGuiWindowFlags& flagsForWindows, int& item_current_idx) { // функция для отрисовки графика
 
-        const int size = data.size();
-        double* x = new double[size];
-        double* y = new double[size];
+        std::vector<std::pair<double, double>> data_for_analytical_solution = rk.getCoordsForAnalytical_Solution(); // создаем вектор точек для аналитического решения, если аналитического решения нет, то тут будет пустой ветктор
 
-        for (int count = 0; count < data.size(); ++count)
-            x[count] = (data[count].first);
-        for (int count = 0; count < data.size(); ++count)
-            y[count] = (data[count].second);
+        const size_t size_of_analytical_solution = data_for_analytical_solution.size(); // получаем размер вектора точек для аналитического решения
+        double* x_of_analytical_solution = new double[size_of_analytical_solution]; // создаем динамический массив x-точек аналитического решения. Размер этого массива равен размеру вектор точек для аналитического решения
+        double* y_of_analytical_solution = new double[size_of_analytical_solution]; // создаем динамический массив y-точек аналитического решения. Размер этого массива равен размеру вектор точек для аналитического решения
 
-
-        std::vector<std::pair<double, double>> data1 = rk.getCoords();
-
-        const int size1 = data1.size();
-        double* x1 = new double[size1];
-        double* y1 = new double[size1];
-
-        for (int count = 0; count < data1.size(); ++count)
-            x1[count] = (data1[count].first);
-        for (int count = 0; count < data1.size(); ++count)
-            y1[count] = (data1[count].second);
-
-
-        ImGuiWindowFlags flags = ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoCollapse;
-
-        ImGui::SetNextWindowSize({ 1000,1000 });
-        ImGui::SetNextWindowPos({ 1000,500 });
-        ImGui::Begin("My Window", 0, flags);
-
-        if (ImPlot::BeginPlot("My Plot")) {
-            ImPlot::PlotLine("My Line Plot", x, y, size);
-            ImPlot::PlotLine("My Line Plot1", x1, y1, size1);
-            ImPlot::EndPlot();
+        for (size_t count = 0; count < size_of_analytical_solution; ++count) { // цикл для копирования данных в массив из вектора точек для аналитического решения ("Мирного решения не будет")
+            x_of_analytical_solution[count] = (data_for_analytical_solution[count].first);
+            y_of_analytical_solution[count] = (data_for_analytical_solution[count].second);
         }
-        ImGui::End();
+
+        std::vector<std::pair<double, double>> data_for_numerical_solution = rk.getCoords(); // создаем вектор точек для численного решения задачи Коши
+
+        const size_t size_of_numerical_solution = data_for_numerical_solution.size(); // получаем размер вектора точек для численного решения
+        double* x_of_numerical_solution = new double[size_of_numerical_solution]; // создаем динамический массив x-точек численного решения. Размер этого массива равен размеру вектор точек для численного решения
+        double* y_of_numerical_solution = new double[size_of_numerical_solution]; // создаем динамический массив y-точек численного решения. Размер этого массива равен размеру вектор точек для численного решения
+
+        for (int count = 0; count < size_of_numerical_solution; ++count) { // цикл для копирования данных в массив из вектора точек для численного решения
+            x_of_numerical_solution[count] = (data_for_numerical_solution[count].first);
+            y_of_numerical_solution[count] = (data_for_numerical_solution[count].second);
+        }
+
+        std::cout << size_of_numerical_solution << std::endl;
+
+        ImGui::SetNextWindowSize({ 960,860 }); // устанавливаем размер для окна с графиком
+        ImGui::SetNextWindowPos({ 960,220 }); // устанавливаем позицию для окна с графиком
+
+        ImGui::Begin("My Window", 0, flagsForWindows); // создаем окно с выбранными настройками
+
+        if (ImPlot::BeginPlot("Solution schedule", { 940,780 })) { // отрисовываем график
+            if (item_current_idx == 0) // если у нас тестовая задача, то надо нарисовать еще аналитическое решение
+                ImPlot::PlotLine("Analytical solution graph", x_of_analytical_solution, y_of_analytical_solution, size_of_analytical_solution); // отрисовываем линию
+            ImPlot::PlotLine("Numerical solution graph", x_of_numerical_solution, y_of_numerical_solution, size_of_numerical_solution); // отрисовываем линию
+            ImPlot::EndPlot(); // заканчиваем отрисовку графика
+        }
+        ImGui::End(); // удаляем окно
     }
 
     void createTable() {
@@ -297,15 +283,15 @@ public:
         {
             if (true)
             {
-                ImGui::TableSetupColumn("#");
-                ImGui::TableSetupColumn("X");
-                ImGui::TableSetupColumn("Ui");
-                ImGui::TableSetupColumn("U2i");
-                ImGui::TableSetupColumn("Ui-U2i");
+                ImGui::TableSetupColumn("#", ImGuiTableColumnFlags_WidthFixed);
+                ImGui::TableSetupColumn("Xi");
+                ImGui::TableSetupColumn("Vi");
+                ImGui::TableSetupColumn("V^i");
+                ImGui::TableSetupColumn("Vi-V^i");
                 ImGui::TableSetupColumn("OLP");
-                ImGui::TableSetupColumn("H");
-                ImGui::TableSetupColumn("C1");
-                ImGui::TableSetupColumn("C2");
+                ImGui::TableSetupColumn("Hi");
+                ImGui::TableSetupColumn("divisions", ImGuiTableColumnFlags_WidthFixed);
+                ImGui::TableSetupColumn("doublings", ImGuiTableColumnFlags_WidthFixed);
                 ImGui::TableHeadersRow();
             }
 
@@ -315,15 +301,15 @@ public:
                 ImGui::TableSetColumnIndex(0);
                 ImGui::Text("%d", row);
                 ImGui::TableSetColumnIndex(1);
-                ImGui::Text("%lf", data[row].first);
+                ImGui::Text("%.12lf", data[row].first);
                 ImGui::TableSetColumnIndex(2);
-                ImGui::Text("%lf", data[row].second);
+                ImGui::Text("%.12lf", data[row].second);
                 ImGui::TableSetColumnIndex(3);
-                ImGui::Text("%lf", twice_half_h_u[row]);
+                ImGui::Text("%.12lf", twice_half_h_u[row]);
                 ImGui::TableSetColumnIndex(4);
-                ImGui::Text("%lf", difference_of_u[row]);
+                ImGui::Text("%.12lf", difference_of_u[row]);
                 ImGui::TableSetColumnIndex(5);
-                ImGui::Text("%.12lf", vector_S[row]);
+                ImGui::Text("%.16lf", vector_S[row]);
                 ImGui::TableSetColumnIndex(6);
                 ImGui::Text("%.12lf", h[row]);
                 ImGui::TableSetColumnIndex(7);

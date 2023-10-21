@@ -40,8 +40,8 @@ private:
     std::vector<double> difference_of_u; // вектор разности точки с обычным шагом и двойным
     std::vector<double> vector_S; // вектор ОЛП
 
-    std::vector<int> C1; // вектор кол-во деления шага
-    std::vector<int> C2; // вектор кол-во умножения шага
+    std::vector<int> C1; // вектор кол-ва деления шага
+    std::vector<int> C2; // вектор кол-ва умножения шага
 
 
     double test_func(double x, double u) { // реализация функции du/dx для тестовой задачи
@@ -129,6 +129,8 @@ private:
         m_data.push_back({ x0,u0 }); // пушим в вектор начальные условия
         m_vector_of_h.push_back(0);
         m_twice_half_h_u.push_back(u0);
+        difference_of_u.push_back(0);
+        vector_S.push_back(0);
         C2.push_back(0);
         C1.push_back(0);
 
@@ -149,7 +151,7 @@ private:
             coords_with_twice_half_h = RKIV(coords_with_half_h.first, coords_with_half_h.second, h / 2, task); // получаем точку (x_n+1, u_n+1) из точки (x_n+1/2, u_n+1/2) с шагом h / 2
 
             m_twice_half_h_u.push_back(coords_with_twice_half_h.second);
-            difference_of_u.push_back(coords_with_twice_half_h.second - coords_with_h.second);
+            difference_of_u.push_back(coords_with_h.second - coords_with_twice_half_h.second);
 
             Actions_with_H act1 = checkUpDown(coords_with_h.second, coords_with_twice_half_h.second); // проверка на выход за локальную погрешность
             Actions_with_H act2 = checkRight(coords_with_h.first); // проверка за выход за правую границу
@@ -282,7 +284,7 @@ public:
         return m_h_start;
     }
 
-    void test_func(double x0, double u0, Task task) {
+    void run_func(double x0, double u0, Task task) {
         /*
         Идея:
             Создать три функции для трех задач. Каждая функция будет запускать run(x0,u0)
