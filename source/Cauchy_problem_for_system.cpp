@@ -21,6 +21,7 @@
 #include <imgui-SFML.h>
 
 int main() {
+    system("chcp 1251");
 
     App app;
     app.init();
