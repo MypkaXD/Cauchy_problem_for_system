@@ -49,6 +49,9 @@ public:
             static int item_current_idx = 0;
             static double x0 = 0;
             static double u0 = 1;
+            static double u_0 = 1;
+            static int param_a = 1;
+            static int param_b = 2;
             static ImGuiWindowFlags flagsForWindows = ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoCollapse;
             static bool isConstH = false;
             static bool isPressed = false;
@@ -58,7 +61,11 @@ public:
             MakeWindowForInputInitialСonditions(x0,u0, flagsForWindows); // вызываем функцию по созданию окна для ввода начальных условий
             makeWindowForInputBorder(flagsForWindows);
             makeWindowForCheckBoxAboutE(flagsForWindows, isConstH, isPressed);
-            createButton(x0, u0, flagsForWindows, item_current_idx, isConstH, isPressed);
+            createButton(x0, u0, flagsForWindows, item_current_idx, isConstH, isPressed, u_0, param_a, param_b);
+            makeWindowForInfo(flagsForWindows, isPressed, item_current_idx, isConstH);
+            if (item_current_idx == 2)
+                makeWindowForSecondTaskInput(flagsForWindows, isPressed, param_a, param_b, u_0);
+
 
             if (isPressed) { // если кнопка была нажата
                 createGraph(flagsForWindows, item_current_idx); // рисуем график
@@ -70,6 +77,106 @@ public:
             m_window.clear();
             render();
         }
+    }
+
+    void makeWindowForSecondTaskInput(ImGuiWindowFlags& flagsForWindows, bool& isPressed, int& param_a, int& param_b, double& u_0) {
+        ImGui::SetNextWindowPos({ 1013,0 }); // устанавливаем позицию для будущего окна
+        ImGui::SetNextWindowSize({ 317,220 });
+
+        ImGui::Begin("Input for 2-nd task", 0, flagsForWindows);
+
+        createInputParamA(flagsForWindows, param_a);
+        createInputParamB(flagsForWindows, param_b);
+        createInputStartU_0(flagsForWindows, u_0);
+
+        ImGui::End();
+    }
+
+    void createInputStartU_0(ImGuiWindowFlags flagsForWindows, double& u_0) {
+
+        flagsForWindows |= ImGuiWindowFlags_NoBackground; // дополнительная настройка для окна, чтобы не было заднего фона
+
+        ImGui::BeginChild("Input X", { 300,60 }, true, flagsForWindows); // Создаем дочернеё окно с размером 300*60 и настройками-flags
+
+        ImGui::SeparatorText("Input U'0"); // дополнительный текст в окне
+
+        ImGui::InputDouble(" ", &u_0, 0.01f, 1.0f, "%.8f"); // поле для ввода double x
+
+        ImGui::EndChild(); // удаляем дочернее окно
+    }
+
+    void createInputParamA(ImGuiWindowFlags flagsForWindows, int& param_a) {
+
+        flagsForWindows |= ImGuiWindowFlags_NoBackground; // дополнительная настройка для окна, чтобы не было заднего фона
+
+        ImGui::BeginChild("Input param A", { 300,60 }, true, flagsForWindows); // Создаем дочернеё окно с размером 300*60 и настройками-flags
+
+        ImGui::SeparatorText("Input param A"); // дополнительный текст в окне
+
+        ImGui::InputInt(" ", &param_a, 1, 100); // поле для ввода double x
+
+        ImGui::EndChild(); // удаляем дочернее окно
+    }
+
+    void createInputParamB(ImGuiWindowFlags flagsForWindows, int& param_b) {
+
+        flagsForWindows |= ImGuiWindowFlags_NoBackground; // дополнительная настройка для окна, чтобы не было заднего фона
+
+        ImGui::BeginChild("Input param B", { 300,60 }, true, flagsForWindows); // Создаем дочернеё окно с размером 300*60 и настройками-flags
+
+        ImGui::SeparatorText("Input param B"); // дополнительный текст в окне
+
+        ImGui::InputInt(" ", &param_b, 1, 100); // поле для ввода double x
+
+        ImGui::EndChild(); // удаляем дочернее окно
+    }
+
+    void makeWindowForInfo(ImGuiWindowFlags& flagsForWindows, bool& isPressed, int& item_current_idx, bool& isConstH) {
+
+        if (item_current_idx == 2) {
+            ImGui::SetNextWindowPos({ 1331,0 }); // устанавливаем позицию для будущего окна
+            ImGui::SetNextWindowSize({ 607,220 });
+        }
+        else {
+            ImGui::SetNextWindowPos({ 1013,0 }); // устанавливаем позицию для будущего окна
+            ImGui::SetNextWindowSize({ 907,220 });
+        }
+
+        ImGui::Begin("Window for info",0,flagsForWindows);
+        if (isPressed) {
+            ImGui::Text("Count of N: %d", rk.getCoords().size() - 1);
+            if (!isConstH) {
+                std::vector<double> S = rk.getVectorOfS();
+                double maxS = *max_element(S.begin(), S.end());
+                ImGui::Text("MAX OLP: %.24lf", maxS);
+
+                std::vector<double> H = rk.getH();
+                double maxH = *max_element(H.begin()+1, H.end());
+                double minH = *min_element(H.begin()+1, H.end());
+                ImGui::Text("MIN H: %.24lf", minH);
+                ImGui::Text("MAX H: %.24lf", maxH);
+
+                if (item_current_idx == 0) {
+                    std::vector<double> diff = rk.getVectorOfDifferenceU();
+                    double maxDiff = *max_element(diff.begin(), diff.end());
+                    ImGui::Text("MAX |Ui-Vi|: %.24lf", maxDiff);
+                }
+
+                //std::vector<int> C1 = rk.getC1();
+                //int countOfDiv;
+                //for (size_t count = 0; count < C1.size(); ++count)
+                //    countOfDiv += C1[count];
+                //ImGui::Text("Count of divisions: %d", countOfDiv);
+                //
+                //std::vector<int> C2 = rk.getC2();
+                //int countOfMult;
+                //for (size_t count = 0; count < C2.size(); ++count)
+                //    countOfMult += C2[count];
+                //ImGui::Text("Count of doublings: %d", countOfMult);
+            }
+        }
+
+        ImGui::End();
     }
 
     void makeWindowForCheckBoxAboutE(ImGuiWindowFlags& flagsForWindows, bool& isConstH, bool& isPressed) {
@@ -288,7 +395,7 @@ public:
         ImGui::EndChild(); // дочернее окно удаляется
     }
 
-    void createButton(double& x0, double& u0, ImGuiWindowFlags& flagsForWindows, int& item_current_idx, bool& isConstH, bool& isPressed) { // функция для создания кнопки, чтобы начать работу методом РК-4
+    void createButton(double& x0, double& u0, ImGuiWindowFlags& flagsForWindows, int& item_current_idx, bool& isConstH, bool& isPressed, double& u_0, int& param_a, int& param_b) { // функция для создания кнопки, чтобы начать работу методом РК-4
 
         ImGui::SetNextWindowPos({ 0,181 }); // устанавливаем позицию для создаваемого окна
         ImGui::SetNextWindowSize({ 350,39 }); // устанавливаем размер для создаваемого окна
@@ -299,7 +406,10 @@ public:
 
         if (ImGui::Button("START", { 100,20 })) { // создаем кнопку с размерами 100*20
             rk.clear_data(); // очищаем значения векторов с прошлой задачи
-            rk.run_func(x0, u0, (Task)item_current_idx, isConstH); // считаем задачу коши в точке (x0,u0)
+            if (item_current_idx == 2)
+                rk.run_func(x0, u0, (Task)item_current_idx, isConstH, u_0, param_a,param_b);
+            else
+                rk.run_func(x0, u0, (Task)item_current_idx, isConstH); // считаем задачу коши в точке (x0,u0)
             isPressed = true; // устанвливаем для переменной isPressed, что она была нажата
         }
 
@@ -324,15 +434,19 @@ public:
             y_of_analytical_solution[count] = (data_for_analytical_solution[count].second);
         }
 
-        std::vector<std::pair<double, double>> data_for_numerical_solution = rk.getCoords(); // создаем вектор точек для численного решения задачи Коши
+        std::vector<std::tuple<double, double, double>> data_for_numerical_solution = rk.getCoords(); // создаем вектор точек для численного решения задачи Коши
 
         const size_t size_of_numerical_solution = data_for_numerical_solution.size(); // получаем размер вектора точек для численного решения
         double* x_of_numerical_solution = new double[size_of_numerical_solution]; // создаем динамический массив x-точек численного решения. Размер этого массива равен размеру вектор точек для численного решения
         double* y_of_numerical_solution = new double[size_of_numerical_solution]; // создаем динамический массив y-точек численного решения. Размер этого массива равен размеру вектор точек для численного решения
+        double* y__of_numerical_solution = new double[size_of_numerical_solution];
+
 
         for (int count = 0; count < size_of_numerical_solution; ++count) { // цикл для копирования данных в массив из вектора точек для численного решения
-            x_of_numerical_solution[count] = (data_for_numerical_solution[count].first);
-            y_of_numerical_solution[count] = (data_for_numerical_solution[count].second);
+            x_of_numerical_solution[count] = std::get<0>(data_for_numerical_solution[count]);
+            y_of_numerical_solution[count] = std::get<1>(data_for_numerical_solution[count]);
+            if (item_current_idx == 2)
+                y__of_numerical_solution[count] = std::get<2>(data_for_numerical_solution[count]);
         }
 
         ImGui::SetNextWindowSize({ 960,860 }); // устанавливаем размер для окна с графиком
@@ -340,9 +454,11 @@ public:
 
         ImGui::Begin("Graph", 0, flagsForWindows); // создаем окно с выбранными настройками
 
-        if (ImPlot::BeginPlot("Solution schedule", { 940,780 })) { // отрисовываем график
+        if (ImPlot::BeginPlot("Solution schedule", "x", "u", { 940,780 })) { // отрисовываем график
             if (item_current_idx == 0) // если у нас тестовая задача, то надо нарисовать еще аналитическое решение
                 ImPlot::PlotLine("Analytical solution graph", x_of_analytical_solution, y_of_analytical_solution, size_of_analytical_solution); // отрисовываем линию
+            else if (item_current_idx == 2)
+                ImPlot::PlotLine("Phase portrait", y_of_numerical_solution, y__of_numerical_solution, size_of_analytical_solution); // отрисовываем линию
             ImPlot::PlotLine("Numerical solution graph", x_of_numerical_solution, y_of_numerical_solution, size_of_numerical_solution); // отрисовываем линию
             ImPlot::EndPlot(); // заканчиваем отрисовку графика
         }
@@ -351,7 +467,7 @@ public:
 
     void createTable(ImGuiWindowFlags& flagsForWindows, int& item_current_idx, bool& isConstH) {
         std::vector<double> vector_of_h = rk.getH(); // создаем вектор значений шагов
-        std::vector<std::pair<double, double>> data_for_numerical_solution = rk.getCoords(); // создаем вектор координат, полученных чсиленным решением
+        std::vector<std::tuple<double, double, double>> data_for_numerical_solution = rk.getCoords(); // создаем вектор координат, полученных чсиленным решением
         std::vector<double> twice_half_h_u = rk.getVectorOfTwiceHalfHU(); // вектор координат v^i
         std::vector<double> difference_of_v = rk.getVectorOfDifferenceOfV(); // вектор vi-v^i
         std::vector<double> vector_S = rk.getVectorOfS(); // вектор ОЛП
@@ -407,9 +523,9 @@ public:
                 ImGui::TableSetColumnIndex(0);
                 ImGui::Text("%d", row);
                 ImGui::TableSetColumnIndex(1);
-                ImGui::Text("%.12lf", data_for_numerical_solution[row].first);
+                ImGui::Text("%.12lf", std::get<0>(data_for_numerical_solution[row]));
                 ImGui::TableSetColumnIndex(2);
-                ImGui::Text("%.12lf", data_for_numerical_solution[row].second);
+                ImGui::Text("%.12lf", std::get<1>(data_for_numerical_solution[row]));
                 if (!isConstH) {
                     ImGui::TableSetColumnIndex(3);
                     ImGui::Text("%.12lf", twice_half_h_u[row]);
@@ -447,12 +563,3 @@ public:
         m_window.display();
     }
 };
-
-
-/*
-
-Сделать иниц флагов один раз и передавать в функции
-Создать окно для ввода границ
-Сделать авто-ресайз окон в зависимости от создаваемого окна
-
-*/
