@@ -213,6 +213,11 @@ private:
         m_data.push_back({ x0,u0 }); // пушим в вектор начальные условия
         m_vector_of_h.push_back(0);
 
+        if (task == Task::TEST_FUNC) {
+            m_vecotor_u.push_back(test_func_analytical_solution(x0));
+            difference_of_u.push_back(0);
+        }
+
         std::pair<double, double> coords_with_h; // создаем вектор coords_with_h для хранения точек x и u с шагом h
 
         double h = (m_b - m_a) / m_N_max;
@@ -227,10 +232,18 @@ private:
             if (act == Actions_with_H::NOTHING) { // если мы не вышли за правую границу - вернулся статус NOTHING или мы считаем последнюю точку
                 m_data.push_back(coords_with_h); // сохраняем точку
                 m_vector_of_h.push_back(h); // сохраняем шаг
+                if (task == Task::TEST_FUNC) {
+                    m_vecotor_u.push_back(test_func_analytical_solution(coords_with_h.first));
+                    difference_of_u.push_back(abs(m_vecotor_u.back() - coords_with_h.second));
+                }
             }
             else if (act == Actions_with_H::STOP || act == Actions_with_H::GET_LAST) {
                 m_data.push_back(coords_with_h); // сохраняем точку
                 m_vector_of_h.push_back(h); // сохраняем шаг
+                if (task == Task::TEST_FUNC) {
+                    m_vecotor_u.push_back(test_func_analytical_solution(coords_with_h.first));
+                    difference_of_u.push_back(abs(m_vecotor_u.back() - coords_with_h.second));
+                }
                 break;
             }
         }
