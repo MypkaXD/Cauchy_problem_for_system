@@ -22,8 +22,6 @@
 
 int main() {
 
-    system("chcp 1251"); // для работы русского текста в гитхабе
-
     App app;
     app.init();
     app.run();
