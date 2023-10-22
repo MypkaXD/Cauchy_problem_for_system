@@ -1,4 +1,4 @@
-﻿#include "imgui.h"
+#include "imgui.h"
 #include "imgui-SFML.h"
 #include "implot.h"
 
@@ -27,10 +27,6 @@ int main() {
     App app;
     app.init();
     app.run();
-
-    //RK rk;
-    //rk.run_func(0, 1, Task::FIRST_TASK, true);
-
 
     return 0;
 }
