@@ -478,7 +478,7 @@ public:
         int size = 9;
 
         if (isConstH)
-            size = 3;
+            size = 3; // размер 3 для таблицы
 
         if (item_current_idx == 0) {
             difference_of_u = rk.getVectorOfDifferenceU();
