@@ -59,7 +59,9 @@ private:
     }
 
     double func_of_second_task_for_f(double x, double u, double u_, double a, double b) {
-        return (-1)*(u_ * u_ * a + b * sin(u));
+        return ((1+x*x)*(1+x*x)*u_-2*x*u);
+        
+        //return (-1)*(u_ * u_ * a + b * sin(u));
     }
 
     double func_of_second_task_for_g(double x, double u, double u_) {
@@ -280,10 +282,12 @@ private:
 
     void analytical_solution() {
         double h = (m_b - m_a) / m_N_max;
+        double x = m_a;
 
         for (int count = 0; count < m_N_max; ++count) {
-            double x = m_a + count * h;
+            x += h;
             m_analytical_solution_data.push_back({ x, test_func_analytical_solution(x)});
+            //std::cout << "COORD " << count << ":\t(" << m_analytical_solution_data.back().first << "; " << m_analytical_solution_data.back().second << ")" << std::endl;
         }
     }
 
@@ -331,6 +335,24 @@ public:
 
     int getN() {
         return m_N_max;
+    }
+
+    int getCountOfDoublings() {
+        int counter = 0;
+        
+        for (size_t count = 0; count < C2.size(); ++count)
+            counter += C2[count];
+
+        return counter;
+    }
+
+    int getCountOfDivisions() {
+        int counter = 0;
+
+        for (size_t count = 0; count < C1.size(); ++count)
+            counter += C1[count];
+
+        return counter;
     }
 
     std::pair<double, double> getBorder() {

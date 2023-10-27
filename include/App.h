@@ -1,4 +1,4 @@
-#include "imgui.h"
+п»ї#include "imgui.h"
 #include "imgui-SFML.h"
 
 #include "implot.h"
@@ -56,9 +56,9 @@ public:
             static bool isConstH = false;
             static bool isPressed = false;
 
-            MakeWindowForInput(flagsForWindows); // вызываем функцию для создания окна для ввода шага и епсилон-границ
-            MakeWindowForTasks(item_current_idx, flagsForWindows, isPressed); // вызываем функцию по созданию окна с всплывающим списком задач
-            MakeWindowForInputInitialСonditions(x0,u0, flagsForWindows); // вызываем функцию по созданию окна для ввода начальных условий
+            MakeWindowForInput(flagsForWindows); // РІС‹Р·С‹РІР°РµРј С„СѓРЅРєС†РёСЋ РґР»СЏ СЃРѕР·РґР°РЅРёСЏ РѕРєРЅР° РґР»СЏ РІРІРѕРґР° С€Р°РіР° Рё РµРїСЃРёР»РѕРЅ-РіСЂР°РЅРёС†
+            MakeWindowForTasks(item_current_idx, flagsForWindows, isPressed); // РІС‹Р·С‹РІР°РµРј С„СѓРЅРєС†РёСЋ РїРѕ СЃРѕР·РґР°РЅРёСЋ РѕРєРЅР° СЃ РІСЃРїР»С‹РІР°СЋС‰РёРј СЃРїРёСЃРєРѕРј Р·Р°РґР°С‡
+            MakeWindowForInputInitialРЎonditions(x0,u0, flagsForWindows); // РІС‹Р·С‹РІР°РµРј С„СѓРЅРєС†РёСЋ РїРѕ СЃРѕР·РґР°РЅРёСЋ РѕРєРЅР° РґР»СЏ РІРІРѕРґР° РЅР°С‡Р°Р»СЊРЅС‹С… СѓСЃР»РѕРІРёР№
             makeWindowForInputBorder(flagsForWindows);
             makeWindowForCheckBoxAboutE(flagsForWindows, isConstH, isPressed);
             createButton(x0, u0, flagsForWindows, item_current_idx, isConstH, isPressed, u_0, param_a, param_b);
@@ -67,9 +67,9 @@ public:
                 makeWindowForSecondTaskInput(flagsForWindows, isPressed, param_a, param_b, u_0);
 
 
-            if (isPressed) { // если кнопка была нажата
-                createGraph(flagsForWindows, item_current_idx); // рисуем график
-                createTable(flagsForWindows, item_current_idx, isConstH); // создаем таблицу
+            if (isPressed) { // РµСЃР»Рё РєРЅРѕРїРєР° Р±С‹Р»Р° РЅР°Р¶Р°С‚Р°
+                createGraph(flagsForWindows, item_current_idx); // СЂРёСЃСѓРµРј РіСЂР°С„РёРє
+                createTable(flagsForWindows, item_current_idx, isConstH); // СЃРѕР·РґР°РµРј С‚Р°Р±Р»РёС†Сѓ
             }
             else
                 clearTableAndGraph(flagsForWindows);
@@ -80,7 +80,7 @@ public:
     }
 
     void makeWindowForSecondTaskInput(ImGuiWindowFlags& flagsForWindows, bool& isPressed, int& param_a, int& param_b, double& u_0) {
-        ImGui::SetNextWindowPos({ 1013,0 }); // устанавливаем позицию для будущего окна
+        ImGui::SetNextWindowPos({ 1013,0 }); // СѓСЃС‚Р°РЅР°РІР»РёРІР°РµРј РїРѕР·РёС†РёСЋ РґР»СЏ Р±СѓРґСѓС‰РµРіРѕ РѕРєРЅР°
         ImGui::SetNextWindowSize({ 317,220 });
 
         ImGui::Begin("Input for 2-nd task", 0, flagsForWindows);
@@ -94,51 +94,51 @@ public:
 
     void createInputStartU_0(ImGuiWindowFlags flagsForWindows, double& u_0) {
 
-        flagsForWindows |= ImGuiWindowFlags_NoBackground; // дополнительная настройка для окна, чтобы не было заднего фона
+        flagsForWindows |= ImGuiWindowFlags_NoBackground; // РґРѕРїРѕР»РЅРёС‚РµР»СЊРЅР°СЏ РЅР°СЃС‚СЂРѕР№РєР° РґР»СЏ РѕРєРЅР°, С‡С‚РѕР±С‹ РЅРµ Р±С‹Р»Рѕ Р·Р°РґРЅРµРіРѕ С„РѕРЅР°
 
-        ImGui::BeginChild("Input X", { 300,60 }, true, flagsForWindows); // Создаем дочернеё окно с размером 300*60 и настройками-flags
+        ImGui::BeginChild("Input X", { 300,60 }, true, flagsForWindows); // РЎРѕР·РґР°РµРј РґРѕС‡РµСЂРЅРµС‘ РѕРєРЅРѕ СЃ СЂР°Р·РјРµСЂРѕРј 300*60 Рё РЅР°СЃС‚СЂРѕР№РєР°РјРё-flags
 
-        ImGui::SeparatorText("Input U'0"); // дополнительный текст в окне
+        ImGui::SeparatorText("Input U'0"); // РґРѕРїРѕР»РЅРёС‚РµР»СЊРЅС‹Р№ С‚РµРєСЃС‚ РІ РѕРєРЅРµ
 
-        ImGui::InputDouble(" ", &u_0, 0.01f, 1.0f, "%.8f"); // поле для ввода double x
+        ImGui::InputDouble(" ", &u_0, 0.01f, 1.0f, "%.8f"); // РїРѕР»Рµ РґР»СЏ РІРІРѕРґР° double x
 
-        ImGui::EndChild(); // удаляем дочернее окно
+        ImGui::EndChild(); // СѓРґР°Р»СЏРµРј РґРѕС‡РµСЂРЅРµРµ РѕРєРЅРѕ
     }
 
     void createInputParamA(ImGuiWindowFlags flagsForWindows, int& param_a) {
 
-        flagsForWindows |= ImGuiWindowFlags_NoBackground; // дополнительная настройка для окна, чтобы не было заднего фона
+        flagsForWindows |= ImGuiWindowFlags_NoBackground; // РґРѕРїРѕР»РЅРёС‚РµР»СЊРЅР°СЏ РЅР°СЃС‚СЂРѕР№РєР° РґР»СЏ РѕРєРЅР°, С‡С‚РѕР±С‹ РЅРµ Р±С‹Р»Рѕ Р·Р°РґРЅРµРіРѕ С„РѕРЅР°
 
-        ImGui::BeginChild("Input param A", { 300,60 }, true, flagsForWindows); // Создаем дочернеё окно с размером 300*60 и настройками-flags
+        ImGui::BeginChild("Input param A", { 300,60 }, true, flagsForWindows); // РЎРѕР·РґР°РµРј РґРѕС‡РµСЂРЅРµС‘ РѕРєРЅРѕ СЃ СЂР°Р·РјРµСЂРѕРј 300*60 Рё РЅР°СЃС‚СЂРѕР№РєР°РјРё-flags
 
-        ImGui::SeparatorText("Input param A"); // дополнительный текст в окне
+        ImGui::SeparatorText("Input param A"); // РґРѕРїРѕР»РЅРёС‚РµР»СЊРЅС‹Р№ С‚РµРєСЃС‚ РІ РѕРєРЅРµ
 
-        ImGui::InputInt(" ", &param_a, 1, 100); // поле для ввода double x
+        ImGui::InputInt(" ", &param_a, 1, 100); // РїРѕР»Рµ РґР»СЏ РІРІРѕРґР° double x
 
-        ImGui::EndChild(); // удаляем дочернее окно
+        ImGui::EndChild(); // СѓРґР°Р»СЏРµРј РґРѕС‡РµСЂРЅРµРµ РѕРєРЅРѕ
     }
 
     void createInputParamB(ImGuiWindowFlags flagsForWindows, int& param_b) {
 
-        flagsForWindows |= ImGuiWindowFlags_NoBackground; // дополнительная настройка для окна, чтобы не было заднего фона
+        flagsForWindows |= ImGuiWindowFlags_NoBackground; // РґРѕРїРѕР»РЅРёС‚РµР»СЊРЅР°СЏ РЅР°СЃС‚СЂРѕР№РєР° РґР»СЏ РѕРєРЅР°, С‡С‚РѕР±С‹ РЅРµ Р±С‹Р»Рѕ Р·Р°РґРЅРµРіРѕ С„РѕРЅР°
 
-        ImGui::BeginChild("Input param B", { 300,60 }, true, flagsForWindows); // Создаем дочернеё окно с размером 300*60 и настройками-flags
+        ImGui::BeginChild("Input param B", { 300,60 }, true, flagsForWindows); // РЎРѕР·РґР°РµРј РґРѕС‡РµСЂРЅРµС‘ РѕРєРЅРѕ СЃ СЂР°Р·РјРµСЂРѕРј 300*60 Рё РЅР°СЃС‚СЂРѕР№РєР°РјРё-flags
 
-        ImGui::SeparatorText("Input param B"); // дополнительный текст в окне
+        ImGui::SeparatorText("Input param B"); // РґРѕРїРѕР»РЅРёС‚РµР»СЊРЅС‹Р№ С‚РµРєСЃС‚ РІ РѕРєРЅРµ
 
-        ImGui::InputInt(" ", &param_b, 1, 100); // поле для ввода double x
+        ImGui::InputInt(" ", &param_b, 1, 100); // РїРѕР»Рµ РґР»СЏ РІРІРѕРґР° double x
 
-        ImGui::EndChild(); // удаляем дочернее окно
+        ImGui::EndChild(); // СѓРґР°Р»СЏРµРј РґРѕС‡РµСЂРЅРµРµ РѕРєРЅРѕ
     }
 
     void makeWindowForInfo(ImGuiWindowFlags& flagsForWindows, bool& isPressed, int& item_current_idx, bool& isConstH) {
 
         if (item_current_idx == 2) {
-            ImGui::SetNextWindowPos({ 1331,0 }); // устанавливаем позицию для будущего окна
+            ImGui::SetNextWindowPos({ 1331,0 }); // СѓСЃС‚Р°РЅР°РІР»РёРІР°РµРј РїРѕР·РёС†РёСЋ РґР»СЏ Р±СѓРґСѓС‰РµРіРѕ РѕРєРЅР°
             ImGui::SetNextWindowSize({ 607,220 });
         }
         else {
-            ImGui::SetNextWindowPos({ 1013,0 }); // устанавливаем позицию для будущего окна
+            ImGui::SetNextWindowPos({ 1013,0 }); // СѓСЃС‚Р°РЅР°РІР»РёРІР°РµРј РїРѕР·РёС†РёСЋ РґР»СЏ Р±СѓРґСѓС‰РµРіРѕ РѕРєРЅР°
             ImGui::SetNextWindowSize({ 907,220 });
         }
 
@@ -162,17 +162,11 @@ public:
                     ImGui::Text("MAX |Ui-Vi|: %.24lf", maxDiff);
                 }
 
-                //std::vector<int> C1 = rk.getC1();
-                //int countOfDiv;
-                //for (size_t count = 0; count < C1.size(); ++count)
-                //    countOfDiv += C1[count];
-                //ImGui::Text("Count of divisions: %d", countOfDiv);
-                //
-                //std::vector<int> C2 = rk.getC2();
-                //int countOfMult;
-                //for (size_t count = 0; count < C2.size(); ++count)
-                //    countOfMult += C2[count];
-                //ImGui::Text("Count of doublings: %d", countOfMult);
+                int countOfDiv = rk.getCountOfDivisions();
+                int countOfMult = rk.getCountOfDoublings();
+
+                ImGui::Text("Count of divisions: %d", countOfDiv);
+                ImGui::Text("Count of doublings: %d", countOfMult);
             }
         }
 
@@ -181,10 +175,10 @@ public:
 
     void makeWindowForCheckBoxAboutE(ImGuiWindowFlags& flagsForWindows, bool& isConstH, bool& isPressed) {
 
-        ImGui::SetNextWindowPos({ 682,141 }); // устанавливаем позицию для будущего окна
+        ImGui::SetNextWindowPos({ 682,141 }); // СѓСЃС‚Р°РЅР°РІР»РёРІР°РµРј РїРѕР·РёС†РёСЋ РґР»СЏ Р±СѓРґСѓС‰РµРіРѕ РѕРєРЅР°
         ImGui::SetNextWindowSize({ 330,79 }); 
 
-        ImGui::Begin("Checkbox", 0, flagsForWindows); // создаем окно с выбранными 
+        ImGui::Begin("Checkbox", 0, flagsForWindows); // СЃРѕР·РґР°РµРј РѕРєРЅРѕ СЃ РІС‹Р±СЂР°РЅРЅС‹РјРё 
 
         if (ImGui::Checkbox("CONST H", &isConstH))
             isPressed = false;
@@ -200,24 +194,24 @@ public:
 
     void makeWindowForInputBorder(ImGuiWindowFlags& flagsForWindows) {
 
-        ImGui::SetNextWindowPos({ 682,0 }); // устанавливаем позицию для будущего окна
-        ImGui::SetNextWindowSize({ 330,140 }); // устанвливаем размер для будущего окна = 330*140
+        ImGui::SetNextWindowPos({ 682,0 }); // СѓСЃС‚Р°РЅР°РІР»РёРІР°РµРј РїРѕР·РёС†РёСЋ РґР»СЏ Р±СѓРґСѓС‰РµРіРѕ РѕРєРЅР°
+        ImGui::SetNextWindowSize({ 330,140 }); // СѓСЃС‚Р°РЅРІР»РёРІР°РµРј СЂР°Р·РјРµСЂ РґР»СЏ Р±СѓРґСѓС‰РµРіРѕ РѕРєРЅР° = 330*140
 
-        ImGui::Begin("Input Border", 0, flagsForWindows); // создаем окно с выбранными настройками
+        ImGui::Begin("Input Border", 0, flagsForWindows); // СЃРѕР·РґР°РµРј РѕРєРЅРѕ СЃ РІС‹Р±СЂР°РЅРЅС‹РјРё РЅР°СЃС‚СЂРѕР№РєР°РјРё
 
         createInputBorderA(flagsForWindows);
         createInputBorderB(flagsForWindows);
 
-        ImGui::End(); // удаляем окно
+        ImGui::End(); // СѓРґР°Р»СЏРµРј РѕРєРЅРѕ
     }
 
     void createInputBorderA(ImGuiWindowFlags flagsForWindows) {
 
-        flagsForWindows |= ImGuiWindowFlags_NoBackground; // дополнительная настройка для окна, чтобы не было заднего фона
+        flagsForWindows |= ImGuiWindowFlags_NoBackground; // РґРѕРїРѕР»РЅРёС‚РµР»СЊРЅР°СЏ РЅР°СЃС‚СЂРѕР№РєР° РґР»СЏ РѕРєРЅР°, С‡С‚РѕР±С‹ РЅРµ Р±С‹Р»Рѕ Р·Р°РґРЅРµРіРѕ С„РѕРЅР°
 
-        ImGui::BeginChild("Input A", { 300,60 }, true, flagsForWindows); // Создаем дочернеё окно с размером 300*60 и настройками-flags
+        ImGui::BeginChild("Input A", { 300,60 }, true, flagsForWindows); // РЎРѕР·РґР°РµРј РґРѕС‡РµСЂРЅРµС‘ РѕРєРЅРѕ СЃ СЂР°Р·РјРµСЂРѕРј 300*60 Рё РЅР°СЃС‚СЂРѕР№РєР°РјРё-flags
 
-        ImGui::SeparatorText("Input A"); // дополнительный текст в окне
+        ImGui::SeparatorText("Input A"); // РґРѕРїРѕР»РЅРёС‚РµР»СЊРЅС‹Р№ С‚РµРєСЃС‚ РІ РѕРєРЅРµ
 
         double a = rk.getBorder().first;
         double max_for_a = rk.getBorder().second - 0.0001;
@@ -230,11 +224,11 @@ public:
     }
 
     void createInputBorderB(ImGuiWindowFlags flagsForWindows) {
-        flagsForWindows |= ImGuiWindowFlags_NoBackground; // дополнительная настройка для окна, чтобы не было заднего фона
+        flagsForWindows |= ImGuiWindowFlags_NoBackground; // РґРѕРїРѕР»РЅРёС‚РµР»СЊРЅР°СЏ РЅР°СЃС‚СЂРѕР№РєР° РґР»СЏ РѕРєРЅР°, С‡С‚РѕР±С‹ РЅРµ Р±С‹Р»Рѕ Р·Р°РґРЅРµРіРѕ С„РѕРЅР°
 
-        ImGui::BeginChild("Input B", { 300,60 }, true, flagsForWindows); // Создаем дочернеё окно с размером 300*60 и настройками-flags
+        ImGui::BeginChild("Input B", { 300,60 }, true, flagsForWindows); // РЎРѕР·РґР°РµРј РґРѕС‡РµСЂРЅРµС‘ РѕРєРЅРѕ СЃ СЂР°Р·РјРµСЂРѕРј 300*60 Рё РЅР°СЃС‚СЂРѕР№РєР°РјРё-flags
 
-        ImGui::SeparatorText("Input B"); // дополнительный текст в окне
+        ImGui::SeparatorText("Input B"); // РґРѕРїРѕР»РЅРёС‚РµР»СЊРЅС‹Р№ С‚РµРєСЃС‚ РІ РѕРєРЅРµ
 
         double b = rk.getBorder().second;
         static double max_for_b = +INFINITY;
@@ -243,234 +237,234 @@ public:
         if (ImGui::DragScalar(" ", ImGuiDataType_Double, &b, 0.0005f, &min_for_b, &max_for_b, "%.10f", ImGuiSliderFlags_AlwaysClamp))
             rk.setBorderB(b);
 
-        ImGui::EndChild(); // удаляем дочернее окно
+        ImGui::EndChild(); // СѓРґР°Р»СЏРµРј РґРѕС‡РµСЂРЅРµРµ РѕРєРЅРѕ
     }
 
-    void MakeWindowForInputInitialСonditions(double& x0, double& u0, ImGuiWindowFlags& flagsForWindows) { // Создаем окно для ввода начальных условий
+    void MakeWindowForInputInitialРЎonditions(double& x0, double& u0, ImGuiWindowFlags& flagsForWindows) { // РЎРѕР·РґР°РµРј РѕРєРЅРѕ РґР»СЏ РІРІРѕРґР° РЅР°С‡Р°Р»СЊРЅС‹С… СѓСЃР»РѕРІРёР№
         
-        ImGui::SetNextWindowPos({ 0,41 }); // устанавливаем позицию окна
-        ImGui::SetNextWindowSize({ 350,140 }); // устанавливаем размер окна
+        ImGui::SetNextWindowPos({ 0,41 }); // СѓСЃС‚Р°РЅР°РІР»РёРІР°РµРј РїРѕР·РёС†РёСЋ РѕРєРЅР°
+        ImGui::SetNextWindowSize({ 350,140 }); // СѓСЃС‚Р°РЅР°РІР»РёРІР°РµРј СЂР°Р·РјРµСЂ РѕРєРЅР°
 
-        ImGui::Begin("Iput start", 0, flagsForWindows); // создание окна
+        ImGui::Begin("Iput start", 0, flagsForWindows); // СЃРѕР·РґР°РЅРёРµ РѕРєРЅР°
 
-        createInputX(x0, flagsForWindows); // вызываем функцию по созданию дочернего окна для ввода координаты X
-        createInputU(u0, flagsForWindows); // вызываем функцию по созданию дочернего окна для ввода координаты U
+        createInputX(x0, flagsForWindows); // РІС‹Р·С‹РІР°РµРј С„СѓРЅРєС†РёСЋ РїРѕ СЃРѕР·РґР°РЅРёСЋ РґРѕС‡РµСЂРЅРµРіРѕ РѕРєРЅР° РґР»СЏ РІРІРѕРґР° РєРѕРѕСЂРґРёРЅР°С‚С‹ X
+        createInputU(u0, flagsForWindows); // РІС‹Р·С‹РІР°РµРј С„СѓРЅРєС†РёСЋ РїРѕ СЃРѕР·РґР°РЅРёСЋ РґРѕС‡РµСЂРЅРµРіРѕ РѕРєРЅР° РґР»СЏ РІРІРѕРґР° РєРѕРѕСЂРґРёРЅР°С‚С‹ U
 
-        ImGui::End(); // удаляем окно
+        ImGui::End(); // СѓРґР°Р»СЏРµРј РѕРєРЅРѕ
     }
 
-    void createInputX(double& x0, ImGuiWindowFlags flagsForWindows) { // Создаем окно для ввода Х
+    void createInputX(double& x0, ImGuiWindowFlags flagsForWindows) { // РЎРѕР·РґР°РµРј РѕРєРЅРѕ РґР»СЏ РІРІРѕРґР° РҐ
         
-        flagsForWindows |= ImGuiWindowFlags_NoBackground; // дополнительная настройка для окна, чтобы не было заднего фона
+        flagsForWindows |= ImGuiWindowFlags_NoBackground; // РґРѕРїРѕР»РЅРёС‚РµР»СЊРЅР°СЏ РЅР°СЃС‚СЂРѕР№РєР° РґР»СЏ РѕРєРЅР°, С‡С‚РѕР±С‹ РЅРµ Р±С‹Р»Рѕ Р·Р°РґРЅРµРіРѕ С„РѕРЅР°
 
-        ImGui::BeginChild("Input X", { 300,60 }, true, flagsForWindows); // Создаем дочернеё окно с размером 300*60 и настройками-flags
+        ImGui::BeginChild("Input X", { 300,60 }, true, flagsForWindows); // РЎРѕР·РґР°РµРј РґРѕС‡РµСЂРЅРµС‘ РѕРєРЅРѕ СЃ СЂР°Р·РјРµСЂРѕРј 300*60 Рё РЅР°СЃС‚СЂРѕР№РєР°РјРё-flags
 
-        ImGui::SeparatorText("Input X0"); // дополнительный текст в окне
+        ImGui::SeparatorText("Input X0"); // РґРѕРїРѕР»РЅРёС‚РµР»СЊРЅС‹Р№ С‚РµРєСЃС‚ РІ РѕРєРЅРµ
 
-        ImGui::InputDouble(" ", &x0, 0.01f, 1.0f, "%.8f"); // поле для ввода double x
+        ImGui::InputDouble(" ", &x0, 0.01f, 1.0f, "%.8f"); // РїРѕР»Рµ РґР»СЏ РІРІРѕРґР° double x
 
-        ImGui::EndChild(); // удаляем дочернее окно
+        ImGui::EndChild(); // СѓРґР°Р»СЏРµРј РґРѕС‡РµСЂРЅРµРµ РѕРєРЅРѕ
     }
 
-    void createInputU(double& u0, ImGuiWindowFlags flagsForWindows) { // Создаем окно для ввода U
+    void createInputU(double& u0, ImGuiWindowFlags flagsForWindows) { // РЎРѕР·РґР°РµРј РѕРєРЅРѕ РґР»СЏ РІРІРѕРґР° U
         
-        flagsForWindows |= ImGuiWindowFlags_NoBackground; // дополнительная настройка для окна, чтобы не было заднего фона
+        flagsForWindows |= ImGuiWindowFlags_NoBackground; // РґРѕРїРѕР»РЅРёС‚РµР»СЊРЅР°СЏ РЅР°СЃС‚СЂРѕР№РєР° РґР»СЏ РѕРєРЅР°, С‡С‚РѕР±С‹ РЅРµ Р±С‹Р»Рѕ Р·Р°РґРЅРµРіРѕ С„РѕРЅР°
 
-        ImGui::BeginChild("Input U", { 300,60 }, true, flagsForWindows); // Создаем дочернеё окно с размером 300*60 и настройками-flags
+        ImGui::BeginChild("Input U", { 300,60 }, true, flagsForWindows); // РЎРѕР·РґР°РµРј РґРѕС‡РµСЂРЅРµС‘ РѕРєРЅРѕ СЃ СЂР°Р·РјРµСЂРѕРј 300*60 Рё РЅР°СЃС‚СЂРѕР№РєР°РјРё-flags
 
-        ImGui::SeparatorText("Input U0"); // дополнительный текст в окне
+        ImGui::SeparatorText("Input U0"); // РґРѕРїРѕР»РЅРёС‚РµР»СЊРЅС‹Р№ С‚РµРєСЃС‚ РІ РѕРєРЅРµ
 
-        ImGui::InputDouble(" ", &u0, 0.01f, 1.0f, "%.8f"); // поле для ввода double u
+        ImGui::InputDouble(" ", &u0, 0.01f, 1.0f, "%.8f"); // РїРѕР»Рµ РґР»СЏ РІРІРѕРґР° double u
 
-        ImGui::EndChild();// удаляем дочернее окно
+        ImGui::EndChild();// СѓРґР°Р»СЏРµРј РґРѕС‡РµСЂРЅРµРµ РѕРєРЅРѕ
     }
 
-    void MakeWindowForTasks(int& item_current_idx, ImGuiWindowFlags& flagsForWindows, bool& isPressed) { // создаем окно для выбора необходимой задачи. Тут item_current_idx - получает ссылку на переменную из основного цикла, отвечающую за выбранную задачу, если 0 - тестовая, 1 - первая задача, 2 - вторая задача
+    void MakeWindowForTasks(int& item_current_idx, ImGuiWindowFlags& flagsForWindows, bool& isPressed) { // СЃРѕР·РґР°РµРј РѕРєРЅРѕ РґР»СЏ РІС‹Р±РѕСЂР° РЅРµРѕР±С…РѕРґРёРјРѕР№ Р·Р°РґР°С‡Рё. РўСѓС‚ item_current_idx - РїРѕР»СѓС‡Р°РµС‚ СЃСЃС‹Р»РєСѓ РЅР° РїРµСЂРµРјРµРЅРЅСѓСЋ РёР· РѕСЃРЅРѕРІРЅРѕРіРѕ С†РёРєР»Р°, РѕС‚РІРµС‡Р°СЋС‰СѓСЋ Р·Р° РІС‹Р±СЂР°РЅРЅСѓСЋ Р·Р°РґР°С‡Сѓ, РµСЃР»Рё 0 - С‚РµСЃС‚РѕРІР°СЏ, 1 - РїРµСЂРІР°СЏ Р·Р°РґР°С‡Р°, 2 - РІС‚РѕСЂР°СЏ Р·Р°РґР°С‡Р°
         
-        ImGui::SetNextWindowPos({ 0,0 }); // устанавливаем позицию в левом-верхнем углу (0,0)
-        ImGui::SetNextWindowSize({ 350,40 }); // устанавливаем размеры для окна 350*40
+        ImGui::SetNextWindowPos({ 0,0 }); // СѓСЃС‚Р°РЅР°РІР»РёРІР°РµРј РїРѕР·РёС†РёСЋ РІ Р»РµРІРѕРј-РІРµСЂС…РЅРµРј СѓРіР»Сѓ (0,0)
+        ImGui::SetNextWindowSize({ 350,40 }); // СѓСЃС‚Р°РЅР°РІР»РёРІР°РµРј СЂР°Р·РјРµСЂС‹ РґР»СЏ РѕРєРЅР° 350*40
 
-        ImGui::Begin("Select Task", 0, flagsForWindows); // создаем окно с выбранными настройками flagsForWindows
+        ImGui::Begin("Select Task", 0, flagsForWindows); // СЃРѕР·РґР°РµРј РѕРєРЅРѕ СЃ РІС‹Р±СЂР°РЅРЅС‹РјРё РЅР°СЃС‚СЂРѕР№РєР°РјРё flagsForWindows
 
-        const char* items[] = { "Test", "First", "Second" }; // создаем массив с названием задача
-        const char* combo_preview_value = items[item_current_idx];  // отображает предыдущую выбранную задачу
+        const char* items[] = { "Test", "First", "Second" }; // СЃРѕР·РґР°РµРј РјР°СЃСЃРёРІ СЃ РЅР°Р·РІР°РЅРёРµРј Р·Р°РґР°С‡Р°
+        const char* combo_preview_value = items[item_current_idx];  // РѕС‚РѕР±СЂР°Р¶Р°РµС‚ РїСЂРµРґС‹РґСѓС‰СѓСЋ РІС‹Р±СЂР°РЅРЅСѓСЋ Р·Р°РґР°С‡Сѓ
         
-        if (ImGui::BeginCombo("Select the task", combo_preview_value)) // создаем выплывающий список из задача
+        if (ImGui::BeginCombo("Select the task", combo_preview_value)) // СЃРѕР·РґР°РµРј РІС‹РїР»С‹РІР°СЋС‰РёР№ СЃРїРёСЃРѕРє РёР· Р·Р°РґР°С‡Р°
         {
-            for (int n = 0; n < IM_ARRAYSIZE(items); n++) // проходи циклом по массиву задач
+            for (int n = 0; n < IM_ARRAYSIZE(items); n++) // РїСЂРѕС…РѕРґРё С†РёРєР»РѕРј РїРѕ РјР°СЃСЃРёРІСѓ Р·Р°РґР°С‡
             {
-                const bool is_selected = (item_current_idx == n); // если задача в массиве, совпадающая с item_current_idx -> true
-                if (ImGui::Selectable(items[n], is_selected)) { // устанавливаем индекс n для item_current_idx, если выбрана задача n
+                const bool is_selected = (item_current_idx == n); // РµСЃР»Рё Р·Р°РґР°С‡Р° РІ РјР°СЃСЃРёРІРµ, СЃРѕРІРїР°РґР°СЋС‰Р°СЏ СЃ item_current_idx -> true
+                if (ImGui::Selectable(items[n], is_selected)) { // СѓСЃС‚Р°РЅР°РІР»РёРІР°РµРј РёРЅРґРµРєСЃ n РґР»СЏ item_current_idx, РµСЃР»Рё РІС‹Р±СЂР°РЅР° Р·Р°РґР°С‡Р° n
                     item_current_idx = n;
                     isPressed = false;
                 }
-                if (is_selected) // если is_selected
-                    ImGui::SetItemDefaultFocus(); // устанавливаем фокус на выбранную задачу
+                if (is_selected) // РµСЃР»Рё is_selected
+                    ImGui::SetItemDefaultFocus(); // СѓСЃС‚Р°РЅР°РІР»РёРІР°РµРј С„РѕРєСѓСЃ РЅР° РІС‹Р±СЂР°РЅРЅСѓСЋ Р·Р°РґР°С‡Сѓ
             }
-            ImGui::EndCombo(); // удаляем выплывающее окно
+            ImGui::EndCombo(); // СѓРґР°Р»СЏРµРј РІС‹РїР»С‹РІР°СЋС‰РµРµ РѕРєРЅРѕ
         }
          
-        ImGui::End(); // удаляем окно
+        ImGui::End(); // СѓРґР°Р»СЏРµРј РѕРєРЅРѕ
     }
 
     void clearTableAndGraph(ImGuiWindowFlags& flagsForWindows) {
-        ImGui::SetNextWindowSize({ 960,860 }); // устанавливаем размер для окна с графиком
-        ImGui::SetNextWindowPos({ 960,220 }); // устанавливаем позицию для окна с графиком
+        ImGui::SetNextWindowSize({ 960,860 }); // СѓСЃС‚Р°РЅР°РІР»РёРІР°РµРј СЂР°Р·РјРµСЂ РґР»СЏ РѕРєРЅР° СЃ РіСЂР°С„РёРєРѕРј
+        ImGui::SetNextWindowPos({ 960,220 }); // СѓСЃС‚Р°РЅР°РІР»РёРІР°РµРј РїРѕР·РёС†РёСЋ РґР»СЏ РѕРєРЅР° СЃ РіСЂР°С„РёРєРѕРј
     
-        ImGui::Begin("My Window", 0, flagsForWindows); // создаем окно с выбранными настройками
+        ImGui::Begin("My Window", 0, flagsForWindows); // СЃРѕР·РґР°РµРј РѕРєРЅРѕ СЃ РІС‹Р±СЂР°РЅРЅС‹РјРё РЅР°СЃС‚СЂРѕР№РєР°РјРё
         
-        ImGui::End(); // Удаляем окно
+        ImGui::End(); // РЈРґР°Р»СЏРµРј РѕРєРЅРѕ
     
-        ImGui::SetNextWindowPos({ 0,220 }); // устанавливаем позицию для создаваемого окна для таблицы
-        ImGui::SetNextWindowSize({ 960,860 }); // устанавливаем размер для создаваемого окна для таблицы
-        ImGui::Begin("Table", 0, flagsForWindows); // создаем окно с заданными настройками
+        ImGui::SetNextWindowPos({ 0,220 }); // СѓСЃС‚Р°РЅР°РІР»РёРІР°РµРј РїРѕР·РёС†РёСЋ РґР»СЏ СЃРѕР·РґР°РІР°РµРјРѕРіРѕ РѕРєРЅР° РґР»СЏ С‚Р°Р±Р»РёС†С‹
+        ImGui::SetNextWindowSize({ 960,860 }); // СѓСЃС‚Р°РЅР°РІР»РёРІР°РµРј СЂР°Р·РјРµСЂ РґР»СЏ СЃРѕР·РґР°РІР°РµРјРѕРіРѕ РѕРєРЅР° РґР»СЏ С‚Р°Р±Р»РёС†С‹
+        ImGui::Begin("Table", 0, flagsForWindows); // СЃРѕР·РґР°РµРј РѕРєРЅРѕ СЃ Р·Р°РґР°РЅРЅС‹РјРё РЅР°СЃС‚СЂРѕР№РєР°РјРё
     
-        ImGui::End(); // удаляем окно
+        ImGui::End(); // СѓРґР°Р»СЏРµРј РѕРєРЅРѕ
     }
 
-    void MakeWindowForInput(ImGuiWindowFlags& flagsForWindows) { // функцию для создания окна для ввода шага и епсилон-границ
+    void MakeWindowForInput(ImGuiWindowFlags& flagsForWindows) { // С„СѓРЅРєС†РёСЋ РґР»СЏ СЃРѕР·РґР°РЅРёСЏ РѕРєРЅР° РґР»СЏ РІРІРѕРґР° С€Р°РіР° Рё РµРїСЃРёР»РѕРЅ-РіСЂР°РЅРёС†
         
-        ImGui::SetNextWindowPos({ 351,0 }); // устанавливаем позицию для будущего окна
-        ImGui::SetNextWindowSize({ 330,220}); // устанвливаем размер для будущего окна = 330*220
+        ImGui::SetNextWindowPos({ 351,0 }); // СѓСЃС‚Р°РЅР°РІР»РёРІР°РµРј РїРѕР·РёС†РёСЋ РґР»СЏ Р±СѓРґСѓС‰РµРіРѕ РѕРєРЅР°
+        ImGui::SetNextWindowSize({ 330,220}); // СѓСЃС‚Р°РЅРІР»РёРІР°РµРј СЂР°Р·РјРµСЂ РґР»СЏ Р±СѓРґСѓС‰РµРіРѕ РѕРєРЅР° = 330*220
         
-        ImGui::Begin("InPut", 0 , flagsForWindows); // создаем окно с выбранными настройками
+        ImGui::Begin("InPut", 0 , flagsForWindows); // СЃРѕР·РґР°РµРј РѕРєРЅРѕ СЃ РІС‹Р±СЂР°РЅРЅС‹РјРё РЅР°СЃС‚СЂРѕР№РєР°РјРё
         
-        createInputH(flagsForWindows); // вызываем функцию для создания окна для ввода шага
-        createInputE_local(flagsForWindows); // вызыаем функцию для создания окна для ввода епсилон-границы, ограничивающая u сверху и снизу
-        createInputE_right(flagsForWindows); // вызываем функцию для создания онка для ввода епсилон-грницы, ограничивающая x справа
+        createInputH(flagsForWindows); // РІС‹Р·С‹РІР°РµРј С„СѓРЅРєС†РёСЋ РґР»СЏ СЃРѕР·РґР°РЅРёСЏ РѕРєРЅР° РґР»СЏ РІРІРѕРґР° С€Р°РіР°
+        createInputE_local(flagsForWindows); // РІС‹Р·С‹Р°РµРј С„СѓРЅРєС†РёСЋ РґР»СЏ СЃРѕР·РґР°РЅРёСЏ РѕРєРЅР° РґР»СЏ РІРІРѕРґР° РµРїСЃРёР»РѕРЅ-РіСЂР°РЅРёС†С‹, РѕРіСЂР°РЅРёС‡РёРІР°СЋС‰Р°СЏ u СЃРІРµСЂС…Сѓ Рё СЃРЅРёР·Сѓ
+        createInputE_right(flagsForWindows); // РІС‹Р·С‹РІР°РµРј С„СѓРЅРєС†РёСЋ РґР»СЏ СЃРѕР·РґР°РЅРёСЏ РѕРЅРєР° РґР»СЏ РІРІРѕРґР° РµРїСЃРёР»РѕРЅ-РіСЂРЅРёС†С‹, РѕРіСЂР°РЅРёС‡РёРІР°СЋС‰Р°СЏ x СЃРїСЂР°РІР°
        
-        ImGui::End(); // удаляем окно
+        ImGui::End(); // СѓРґР°Р»СЏРµРј РѕРєРЅРѕ
     }
 
-    void createInputE_local(ImGuiWindowFlags flagsForWindows) { // функция для создания дочернего окна для ввода e_local
+    void createInputE_local(ImGuiWindowFlags flagsForWindows) { // С„СѓРЅРєС†РёСЏ РґР»СЏ СЃРѕР·РґР°РЅРёСЏ РґРѕС‡РµСЂРЅРµРіРѕ РѕРєРЅР° РґР»СЏ РІРІРѕРґР° e_local
         
-        flagsForWindows |= ImGuiWindowFlags_NoBackground; // дополнительная настройка, чтобы не было заднего фона
+        flagsForWindows |= ImGuiWindowFlags_NoBackground; // РґРѕРїРѕР»РЅРёС‚РµР»СЊРЅР°СЏ РЅР°СЃС‚СЂРѕР№РєР°, С‡С‚РѕР±С‹ РЅРµ Р±С‹Р»Рѕ Р·Р°РґРЅРµРіРѕ С„РѕРЅР°
 
-        ImGui::BeginChild("Input E local", { 300,60 }, true, flagsForWindows); // создаем дочернее окно, с заданными размерами 300*60
+        ImGui::BeginChild("Input E local", { 300,60 }, true, flagsForWindows); // СЃРѕР·РґР°РµРј РґРѕС‡РµСЂРЅРµРµ РѕРєРЅРѕ, СЃ Р·Р°РґР°РЅРЅС‹РјРё СЂР°Р·РјРµСЂР°РјРё 300*60
 
-        ImGui::SeparatorText("Input E local"); // дополнительный текст Input E local
+        ImGui::SeparatorText("Input E local"); // РґРѕРїРѕР»РЅРёС‚РµР»СЊРЅС‹Р№ С‚РµРєСЃС‚ Input E local
 
-        static double input_e_local = rk.get_E_local(); // переменная input_e_local из класса RK
-        static double max = 1.0; // max значение для input_e_local
-        static double min = 0.000000001; // min значение для input_e_local
-        if (ImGui::DragScalar(" ", ImGuiDataType_Double, &input_e_local, 0.0005f, &min, &max, "%.10f", ImGuiSliderFlags_AlwaysClamp)) // создает поле для ввода данных и если были введены какие-то данные, то
-            rk.set_E_local(input_e_local); // устанавливается значение для m_E_check_up в классе RK
+        static double input_e_local = rk.get_E_local(); // РїРµСЂРµРјРµРЅРЅР°СЏ input_e_local РёР· РєР»Р°СЃСЃР° RK
+        static double max = 1.0; // max Р·РЅР°С‡РµРЅРёРµ РґР»СЏ input_e_local
+        static double min = 0.000000001; // min Р·РЅР°С‡РµРЅРёРµ РґР»СЏ input_e_local
+        if (ImGui::DragScalar(" ", ImGuiDataType_Double, &input_e_local, 0.0005f, &min, &max, "%.10f", ImGuiSliderFlags_AlwaysClamp)) // СЃРѕР·РґР°РµС‚ РїРѕР»Рµ РґР»СЏ РІРІРѕРґР° РґР°РЅРЅС‹С… Рё РµСЃР»Рё Р±С‹Р»Рё РІРІРµРґРµРЅС‹ РєР°РєРёРµ-С‚Рѕ РґР°РЅРЅС‹Рµ, С‚Рѕ
+            rk.set_E_local(input_e_local); // СѓСЃС‚Р°РЅР°РІР»РёРІР°РµС‚СЃСЏ Р·РЅР°С‡РµРЅРёРµ РґР»СЏ m_E_check_up РІ РєР»Р°СЃСЃРµ RK
 
-        ImGui::EndChild(); // дочернее окно удаляется
+        ImGui::EndChild(); // РґРѕС‡РµСЂРЅРµРµ РѕРєРЅРѕ СѓРґР°Р»СЏРµС‚СЃСЏ
     }
 
-    void createInputE_right(ImGuiWindowFlags flagsForWindows) { // функция для создания дочернего окна для ввода e_right - граница для x справа
+    void createInputE_right(ImGuiWindowFlags flagsForWindows) { // С„СѓРЅРєС†РёСЏ РґР»СЏ СЃРѕР·РґР°РЅРёСЏ РґРѕС‡РµСЂРЅРµРіРѕ РѕРєРЅР° РґР»СЏ РІРІРѕРґР° e_right - РіСЂР°РЅРёС†Р° РґР»СЏ x СЃРїСЂР°РІР°
 
-        flagsForWindows |= ImGuiWindowFlags_NoBackground; // дополнительная настройка, чтобы не было заднего фона
+        flagsForWindows |= ImGuiWindowFlags_NoBackground; // РґРѕРїРѕР»РЅРёС‚РµР»СЊРЅР°СЏ РЅР°СЃС‚СЂРѕР№РєР°, С‡С‚РѕР±С‹ РЅРµ Р±С‹Р»Рѕ Р·Р°РґРЅРµРіРѕ С„РѕРЅР°
 
-        ImGui::BeginChild("Input E right", { 300,60 }, true, flagsForWindows); // создаем дочернее окно, с заданными размерами 300*60
+        ImGui::BeginChild("Input E right", { 300,60 }, true, flagsForWindows); // СЃРѕР·РґР°РµРј РґРѕС‡РµСЂРЅРµРµ РѕРєРЅРѕ, СЃ Р·Р°РґР°РЅРЅС‹РјРё СЂР°Р·РјРµСЂР°РјРё 300*60
 
-        ImGui::SeparatorText("Input E right"); // дополнительный текст Input E right
+        ImGui::SeparatorText("Input E right"); // РґРѕРїРѕР»РЅРёС‚РµР»СЊРЅС‹Р№ С‚РµРєСЃС‚ Input E right
 
-        static double input_e_right = rk.get_E_right(); // переменная input_e_right из класса RK
-        static double max = 1.0; // max значение для input_e_right
-        static double min = 0.000000001; // min значение для input_e_right
+        static double input_e_right = rk.get_E_right(); // РїРµСЂРµРјРµРЅРЅР°СЏ input_e_right РёР· РєР»Р°СЃСЃР° RK
+        static double max = 1.0; // max Р·РЅР°С‡РµРЅРёРµ РґР»СЏ input_e_right
+        static double min = 0.000000001; // min Р·РЅР°С‡РµРЅРёРµ РґР»СЏ input_e_right
 
-        if (ImGui::DragScalar(" ", ImGuiDataType_Double, &input_e_right, 0.0005f, &min, &max, "%.10f", ImGuiSliderFlags_AlwaysClamp)) // создает поле для ввода данных и если были введены какие-то данные, то
-            rk.set_E_right(input_e_right); // устанавливается значение для m_E_check_right в классе RK
+        if (ImGui::DragScalar(" ", ImGuiDataType_Double, &input_e_right, 0.0005f, &min, &max, "%.10f", ImGuiSliderFlags_AlwaysClamp)) // СЃРѕР·РґР°РµС‚ РїРѕР»Рµ РґР»СЏ РІРІРѕРґР° РґР°РЅРЅС‹С… Рё РµСЃР»Рё Р±С‹Р»Рё РІРІРµРґРµРЅС‹ РєР°РєРёРµ-С‚Рѕ РґР°РЅРЅС‹Рµ, С‚Рѕ
+            rk.set_E_right(input_e_right); // СѓСЃС‚Р°РЅР°РІР»РёРІР°РµС‚СЃСЏ Р·РЅР°С‡РµРЅРёРµ РґР»СЏ m_E_check_right РІ РєР»Р°СЃСЃРµ RK
 
-        ImGui::EndChild(); // дочернее окно удаляется
+        ImGui::EndChild(); // РґРѕС‡РµСЂРЅРµРµ РѕРєРЅРѕ СѓРґР°Р»СЏРµС‚СЃСЏ
     }
 
-    void createInputH(ImGuiWindowFlags flagsForWindows) { // функция для создания дочернего окна для ввода h - шаг
+    void createInputH(ImGuiWindowFlags flagsForWindows) { // С„СѓРЅРєС†РёСЏ РґР»СЏ СЃРѕР·РґР°РЅРёСЏ РґРѕС‡РµСЂРЅРµРіРѕ РѕРєРЅР° РґР»СЏ РІРІРѕРґР° h - С€Р°Рі
 
-        flagsForWindows |= ImGuiWindowFlags_NoBackground; // дополнительная настройка, чтобы не было заднего фона
+        flagsForWindows |= ImGuiWindowFlags_NoBackground; // РґРѕРїРѕР»РЅРёС‚РµР»СЊРЅР°СЏ РЅР°СЃС‚СЂРѕР№РєР°, С‡С‚РѕР±С‹ РЅРµ Р±С‹Р»Рѕ Р·Р°РґРЅРµРіРѕ С„РѕРЅР°
 
-        ImGui::BeginChild("Input H", { 300,60 }, true, flagsForWindows); // создаем дочернее окно, с заданными размерами 300*60
+        ImGui::BeginChild("Input H", { 300,60 }, true, flagsForWindows); // СЃРѕР·РґР°РµРј РґРѕС‡РµСЂРЅРµРµ РѕРєРЅРѕ, СЃ Р·Р°РґР°РЅРЅС‹РјРё СЂР°Р·РјРµСЂР°РјРё 300*60
 
-        ImGui::SeparatorText("Input H"); // дополнительный текст Input H
+        ImGui::SeparatorText("Input H"); // РґРѕРїРѕР»РЅРёС‚РµР»СЊРЅС‹Р№ С‚РµРєСЃС‚ Input H
 
-        static double input_h = rk.get_Start_H(); // переменная input_h из класса RK
-        static double max = 1.0; // max значение для input_h
-        static double min = 0.0000001; // min значение для input_h
+        static double input_h = rk.get_Start_H(); // РїРµСЂРµРјРµРЅРЅР°СЏ input_h РёР· РєР»Р°СЃСЃР° RK
+        static double max = 1.0; // max Р·РЅР°С‡РµРЅРёРµ РґР»СЏ input_h
+        static double min = 0.0000001; // min Р·РЅР°С‡РµРЅРёРµ РґР»СЏ input_h
 
-        if (ImGui::DragScalar(" ", ImGuiDataType_Double, &input_h, 0.0005f, &min, &max, "%.10f", ImGuiSliderFlags_AlwaysClamp)) // создает поле для ввода данных и если были введены какие-то данные, то
-            rk.set_Start_H(input_h); // устанавливается значение для m_h в классе RK
+        if (ImGui::DragScalar(" ", ImGuiDataType_Double, &input_h, 0.0005f, &min, &max, "%.10f", ImGuiSliderFlags_AlwaysClamp)) // СЃРѕР·РґР°РµС‚ РїРѕР»Рµ РґР»СЏ РІРІРѕРґР° РґР°РЅРЅС‹С… Рё РµСЃР»Рё Р±С‹Р»Рё РІРІРµРґРµРЅС‹ РєР°РєРёРµ-С‚Рѕ РґР°РЅРЅС‹Рµ, С‚Рѕ
+            rk.set_Start_H(input_h); // СѓСЃС‚Р°РЅР°РІР»РёРІР°РµС‚СЃСЏ Р·РЅР°С‡РµРЅРёРµ РґР»СЏ m_h РІ РєР»Р°СЃСЃРµ RK
 
-        ImGui::EndChild(); // дочернее окно удаляется
+        ImGui::EndChild(); // РґРѕС‡РµСЂРЅРµРµ РѕРєРЅРѕ СѓРґР°Р»СЏРµС‚СЃСЏ
     }
 
-    void createButton(double& x0, double& u0, ImGuiWindowFlags& flagsForWindows, int& item_current_idx, bool& isConstH, bool& isPressed, double& u_0, int& param_a, int& param_b) { // функция для создания кнопки, чтобы начать работу методом РК-4
+    void createButton(double& x0, double& u0, ImGuiWindowFlags& flagsForWindows, int& item_current_idx, bool& isConstH, bool& isPressed, double& u_0, int& param_a, int& param_b) { // С„СѓРЅРєС†РёСЏ РґР»СЏ СЃРѕР·РґР°РЅРёСЏ РєРЅРѕРїРєРё, С‡С‚РѕР±С‹ РЅР°С‡Р°С‚СЊ СЂР°Р±РѕС‚Сѓ РјРµС‚РѕРґРѕРј Р Рљ-4
 
-        ImGui::SetNextWindowPos({ 0,181 }); // устанавливаем позицию для создаваемого окна
-        ImGui::SetNextWindowSize({ 350,39 }); // устанавливаем размер для создаваемого окна
+        ImGui::SetNextWindowPos({ 0,181 }); // СѓСЃС‚Р°РЅР°РІР»РёРІР°РµРј РїРѕР·РёС†РёСЋ РґР»СЏ СЃРѕР·РґР°РІР°РµРјРѕРіРѕ РѕРєРЅР°
+        ImGui::SetNextWindowSize({ 350,39 }); // СѓСЃС‚Р°РЅР°РІР»РёРІР°РµРј СЂР°Р·РјРµСЂ РґР»СЏ СЃРѕР·РґР°РІР°РµРјРѕРіРѕ РѕРєРЅР°
 
-        ImGui::Begin("Button", 0, flagsForWindows); // Создаем окно с заданными параметрами
+        ImGui::Begin("Button", 0, flagsForWindows); // РЎРѕР·РґР°РµРј РѕРєРЅРѕ СЃ Р·Р°РґР°РЅРЅС‹РјРё РїР°СЂР°РјРµС‚СЂР°РјРё
 
-        //bool isPressed = false; // создаем переменную, показывающую была ли нажата кнопка
+        //bool isPressed = false; // СЃРѕР·РґР°РµРј РїРµСЂРµРјРµРЅРЅСѓСЋ, РїРѕРєР°Р·С‹РІР°СЋС‰СѓСЋ Р±С‹Р»Р° Р»Рё РЅР°Р¶Р°С‚Р° РєРЅРѕРїРєР°
 
-        if (ImGui::Button("START", { 100,20 })) { // создаем кнопку с размерами 100*20
-            rk.clear_data(); // очищаем значения векторов с прошлой задачи
+        if (ImGui::Button("START", { 100,20 })) { // СЃРѕР·РґР°РµРј РєРЅРѕРїРєСѓ СЃ СЂР°Р·РјРµСЂР°РјРё 100*20
+            rk.clear_data(); // РѕС‡РёС‰Р°РµРј Р·РЅР°С‡РµРЅРёСЏ РІРµРєС‚РѕСЂРѕРІ СЃ РїСЂРѕС€Р»РѕР№ Р·Р°РґР°С‡Рё
             if (item_current_idx == 2)
                 rk.run_func(x0, u0, (Task)item_current_idx, isConstH, u_0, param_a,param_b);
             else
-                rk.run_func(x0, u0, (Task)item_current_idx, isConstH); // считаем задачу коши в точке (x0,u0)
-            isPressed = true; // устанвливаем для переменной isPressed, что она была нажата
+                rk.run_func(x0, u0, (Task)item_current_idx, isConstH); // СЃС‡РёС‚Р°РµРј Р·Р°РґР°С‡Сѓ РєРѕС€Рё РІ С‚РѕС‡РєРµ (x0,u0)
+            isPressed = true; // СѓСЃС‚Р°РЅРІР»РёРІР°РµРј РґР»СЏ РїРµСЂРµРјРµРЅРЅРѕР№ isPressed, С‡С‚Рѕ РѕРЅР° Р±С‹Р»Р° РЅР°Р¶Р°С‚Р°
         }
 
-        ImGui::SameLine(); // в той же строке
-        ImGui::Text("Start Calc"); // пишем Start Calc
+        ImGui::SameLine(); // РІ С‚РѕР№ Р¶Рµ СЃС‚СЂРѕРєРµ
+        ImGui::Text("Start Calc"); // РїРёС€РµРј Start Calc
 
-        ImGui::End(); // удаляем окно
+        ImGui::End(); // СѓРґР°Р»СЏРµРј РѕРєРЅРѕ
         
-        //return isPressed; // возврщаем значение isPressed
+        //return isPressed; // РІРѕР·РІСЂС‰Р°РµРј Р·РЅР°С‡РµРЅРёРµ isPressed
     }
 
-    void createGraph(ImGuiWindowFlags& flagsForWindows, int& item_current_idx) { // функция для отрисовки графика
+    void createGraph(ImGuiWindowFlags& flagsForWindows, int& item_current_idx) { // С„СѓРЅРєС†РёСЏ РґР»СЏ РѕС‚СЂРёСЃРѕРІРєРё РіСЂР°С„РёРєР°
 
-        std::vector<std::pair<double, double>> data_for_analytical_solution = rk.getCoordsForAnalytical_Solution(); // создаем вектор точек для аналитического решения, если аналитического решения нет, то тут будет пустой ветктор
+        std::vector<std::pair<double, double>> data_for_analytical_solution = rk.getCoordsForAnalytical_Solution(); // СЃРѕР·РґР°РµРј РІРµРєС‚РѕСЂ С‚РѕС‡РµРє РґР»СЏ Р°РЅР°Р»РёС‚РёС‡РµСЃРєРѕРіРѕ СЂРµС€РµРЅРёСЏ, РµСЃР»Рё Р°РЅР°Р»РёС‚РёС‡РµСЃРєРѕРіРѕ СЂРµС€РµРЅРёСЏ РЅРµС‚, С‚Рѕ С‚СѓС‚ Р±СѓРґРµС‚ РїСѓСЃС‚РѕР№ РІРµС‚РєС‚РѕСЂ
 
-        const size_t size_of_analytical_solution = data_for_analytical_solution.size(); // получаем размер вектора точек для аналитического решения
-        double* x_of_analytical_solution = new double[size_of_analytical_solution]; // создаем динамический массив x-точек аналитического решения. Размер этого массива равен размеру вектор точек для аналитического решения
-        double* y_of_analytical_solution = new double[size_of_analytical_solution]; // создаем динамический массив y-точек аналитического решения. Размер этого массива равен размеру вектор точек для аналитического решения
+        const size_t size_of_analytical_solution = data_for_analytical_solution.size(); // РїРѕР»СѓС‡Р°РµРј СЂР°Р·РјРµСЂ РІРµРєС‚РѕСЂР° С‚РѕС‡РµРє РґР»СЏ Р°РЅР°Р»РёС‚РёС‡РµСЃРєРѕРіРѕ СЂРµС€РµРЅРёСЏ
+        double* x_of_analytical_solution = new double[size_of_analytical_solution]; // СЃРѕР·РґР°РµРј РґРёРЅР°РјРёС‡РµСЃРєРёР№ РјР°СЃСЃРёРІ x-С‚РѕС‡РµРє Р°РЅР°Р»РёС‚РёС‡РµСЃРєРѕРіРѕ СЂРµС€РµРЅРёСЏ. Р Р°Р·РјРµСЂ СЌС‚РѕРіРѕ РјР°СЃСЃРёРІР° СЂР°РІРµРЅ СЂР°Р·РјРµСЂСѓ РІРµРєС‚РѕСЂ С‚РѕС‡РµРє РґР»СЏ Р°РЅР°Р»РёС‚РёС‡РµСЃРєРѕРіРѕ СЂРµС€РµРЅРёСЏ
+        double* y_of_analytical_solution = new double[size_of_analytical_solution]; // СЃРѕР·РґР°РµРј РґРёРЅР°РјРёС‡РµСЃРєРёР№ РјР°СЃСЃРёРІ y-С‚РѕС‡РµРє Р°РЅР°Р»РёС‚РёС‡РµСЃРєРѕРіРѕ СЂРµС€РµРЅРёСЏ. Р Р°Р·РјРµСЂ СЌС‚РѕРіРѕ РјР°СЃСЃРёРІР° СЂР°РІРµРЅ СЂР°Р·РјРµСЂСѓ РІРµРєС‚РѕСЂ С‚РѕС‡РµРє РґР»СЏ Р°РЅР°Р»РёС‚РёС‡РµСЃРєРѕРіРѕ СЂРµС€РµРЅРёСЏ
 
-        for (size_t count = 0; count < size_of_analytical_solution; ++count) { // цикл для копирования данных в массив из вектора точек для аналитического решения ("Мирного решения не будет")
+        for (size_t count = 0; count < size_of_analytical_solution; ++count) { // С†РёРєР» РґР»СЏ РєРѕРїРёСЂРѕРІР°РЅРёСЏ РґР°РЅРЅС‹С… РІ РјР°СЃСЃРёРІ РёР· РІРµРєС‚РѕСЂР° С‚РѕС‡РµРє РґР»СЏ Р°РЅР°Р»РёС‚РёС‡РµСЃРєРѕРіРѕ СЂРµС€РµРЅРёСЏ ("РњРёСЂРЅРѕРіРѕ СЂРµС€РµРЅРёСЏ РЅРµ Р±СѓРґРµС‚")
             x_of_analytical_solution[count] = (data_for_analytical_solution[count].first);
             y_of_analytical_solution[count] = (data_for_analytical_solution[count].second);
         }
 
-        std::vector<std::tuple<double, double, double>> data_for_numerical_solution = rk.getCoords(); // создаем вектор точек для численного решения задачи Коши
+        std::vector<std::tuple<double, double, double>> data_for_numerical_solution = rk.getCoords(); // СЃРѕР·РґР°РµРј РІРµРєС‚РѕСЂ С‚РѕС‡РµРє РґР»СЏ С‡РёСЃР»РµРЅРЅРѕРіРѕ СЂРµС€РµРЅРёСЏ Р·Р°РґР°С‡Рё РљРѕС€Рё
 
-        const size_t size_of_numerical_solution = data_for_numerical_solution.size(); // получаем размер вектора точек для численного решения
-        double* x_of_numerical_solution = new double[size_of_numerical_solution]; // создаем динамический массив x-точек численного решения. Размер этого массива равен размеру вектор точек для численного решения
-        double* y_of_numerical_solution = new double[size_of_numerical_solution]; // создаем динамический массив y-точек численного решения. Размер этого массива равен размеру вектор точек для численного решения
+        const size_t size_of_numerical_solution = data_for_numerical_solution.size(); // РїРѕР»СѓС‡Р°РµРј СЂР°Р·РјРµСЂ РІРµРєС‚РѕСЂР° С‚РѕС‡РµРє РґР»СЏ С‡РёСЃР»РµРЅРЅРѕРіРѕ СЂРµС€РµРЅРёСЏ
+        double* x_of_numerical_solution = new double[size_of_numerical_solution]; // СЃРѕР·РґР°РµРј РґРёРЅР°РјРёС‡РµСЃРєРёР№ РјР°СЃСЃРёРІ x-С‚РѕС‡РµРє С‡РёСЃР»РµРЅРЅРѕРіРѕ СЂРµС€РµРЅРёСЏ. Р Р°Р·РјРµСЂ СЌС‚РѕРіРѕ РјР°СЃСЃРёРІР° СЂР°РІРµРЅ СЂР°Р·РјРµСЂСѓ РІРµРєС‚РѕСЂ С‚РѕС‡РµРє РґР»СЏ С‡РёСЃР»РµРЅРЅРѕРіРѕ СЂРµС€РµРЅРёСЏ
+        double* y_of_numerical_solution = new double[size_of_numerical_solution]; // СЃРѕР·РґР°РµРј РґРёРЅР°РјРёС‡РµСЃРєРёР№ РјР°СЃСЃРёРІ y-С‚РѕС‡РµРє С‡РёСЃР»РµРЅРЅРѕРіРѕ СЂРµС€РµРЅРёСЏ. Р Р°Р·РјРµСЂ СЌС‚РѕРіРѕ РјР°СЃСЃРёРІР° СЂР°РІРµРЅ СЂР°Р·РјРµСЂСѓ РІРµРєС‚РѕСЂ С‚РѕС‡РµРє РґР»СЏ С‡РёСЃР»РµРЅРЅРѕРіРѕ СЂРµС€РµРЅРёСЏ
         double* y__of_numerical_solution = new double[size_of_numerical_solution];
 
 
-        for (int count = 0; count < size_of_numerical_solution; ++count) { // цикл для копирования данных в массив из вектора точек для численного решения
+        for (int count = 0; count < size_of_numerical_solution; ++count) { // С†РёРєР» РґР»СЏ РєРѕРїРёСЂРѕРІР°РЅРёСЏ РґР°РЅРЅС‹С… РІ РјР°СЃСЃРёРІ РёР· РІРµРєС‚РѕСЂР° С‚РѕС‡РµРє РґР»СЏ С‡РёСЃР»РµРЅРЅРѕРіРѕ СЂРµС€РµРЅРёСЏ
             x_of_numerical_solution[count] = std::get<0>(data_for_numerical_solution[count]);
             y_of_numerical_solution[count] = std::get<1>(data_for_numerical_solution[count]);
             if (item_current_idx == 2)
                 y__of_numerical_solution[count] = std::get<2>(data_for_numerical_solution[count]);
         }
 
-        ImGui::SetNextWindowSize({ 960,860 }); // устанавливаем размер для окна с графиком
-        ImGui::SetNextWindowPos({ 960,220 }); // устанавливаем позицию для окна с графиком
+        ImGui::SetNextWindowSize({ 960,860 }); // СѓСЃС‚Р°РЅР°РІР»РёРІР°РµРј СЂР°Р·РјРµСЂ РґР»СЏ РѕРєРЅР° СЃ РіСЂР°С„РёРєРѕРј
+        ImGui::SetNextWindowPos({ 960,220 }); // СѓСЃС‚Р°РЅР°РІР»РёРІР°РµРј РїРѕР·РёС†РёСЋ РґР»СЏ РѕРєРЅР° СЃ РіСЂР°С„РёРєРѕРј
 
-        ImGui::Begin("Graph", 0, flagsForWindows); // создаем окно с выбранными настройками
+        ImGui::Begin("Graph", 0, flagsForWindows); // СЃРѕР·РґР°РµРј РѕРєРЅРѕ СЃ РІС‹Р±СЂР°РЅРЅС‹РјРё РЅР°СЃС‚СЂРѕР№РєР°РјРё
 
-        if (ImPlot::BeginPlot("Solution schedule", "x", "u", { 940,780 })) { // отрисовываем график
-            if (item_current_idx == 0) // если у нас тестовая задача, то надо нарисовать еще аналитическое решение
-                ImPlot::PlotLine("Analytical solution graph", x_of_analytical_solution, y_of_analytical_solution, size_of_analytical_solution); // отрисовываем линию
+        if (ImPlot::BeginPlot("Solution schedule", "x", "u", { 940,780 })) { // РѕС‚СЂРёСЃРѕРІС‹РІР°РµРј РіСЂР°С„РёРє
+            if (item_current_idx == 0) // РµСЃР»Рё Сѓ РЅР°СЃ С‚РµСЃС‚РѕРІР°СЏ Р·Р°РґР°С‡Р°, С‚Рѕ РЅР°РґРѕ РЅР°СЂРёСЃРѕРІР°С‚СЊ РµС‰Рµ Р°РЅР°Р»РёС‚РёС‡РµСЃРєРѕРµ СЂРµС€РµРЅРёРµ
+                ImPlot::PlotLine("Analytical solution graph", x_of_analytical_solution, y_of_analytical_solution, size_of_analytical_solution); // РѕС‚СЂРёСЃРѕРІС‹РІР°РµРј Р»РёРЅРёСЋ
             else if (item_current_idx == 2)
-                ImPlot::PlotLine("Phase portrait", y_of_numerical_solution, y__of_numerical_solution, size_of_analytical_solution); // отрисовываем линию
-            ImPlot::PlotLine("Numerical solution graph", x_of_numerical_solution, y_of_numerical_solution, size_of_numerical_solution); // отрисовываем линию
-            ImPlot::EndPlot(); // заканчиваем отрисовку графика
+                ImPlot::PlotLine("Phase portrait", y_of_numerical_solution, y__of_numerical_solution, size_of_analytical_solution); // РѕС‚СЂРёСЃРѕРІС‹РІР°РµРј Р»РёРЅРёСЋ
+            ImPlot::PlotLine("Numerical solution graph", x_of_numerical_solution, y_of_numerical_solution, size_of_numerical_solution); // РѕС‚СЂРёСЃРѕРІС‹РІР°РµРј Р»РёРЅРёСЋ
+            ImPlot::EndPlot(); // Р·Р°РєР°РЅС‡РёРІР°РµРј РѕС‚СЂРёСЃРѕРІРєСѓ РіСЂР°С„РёРєР°
         }
-        ImGui::End(); // удаляем окно
+        ImGui::End(); // СѓРґР°Р»СЏРµРј РѕРєРЅРѕ
     }
 
     void createTable(ImGuiWindowFlags& flagsForWindows, int& item_current_idx, bool& isConstH) {
-        std::vector<double> vector_of_h = rk.getH(); // создаем вектор значений шагов
-        std::vector<std::tuple<double, double, double>> data_for_numerical_solution = rk.getCoords(); // создаем вектор координат, полученных чсиленным решением
-        std::vector<double> twice_half_h_u = rk.getVectorOfTwiceHalfHU(); // вектор координат v^i
-        std::vector<double> difference_of_v = rk.getVectorOfDifferenceOfV(); // вектор vi-v^i
-        std::vector<double> vector_S = rk.getVectorOfS(); // вектор ОЛП
+        std::vector<double> vector_of_h = rk.getH(); // СЃРѕР·РґР°РµРј РІРµРєС‚РѕСЂ Р·РЅР°С‡РµРЅРёР№ С€Р°РіРѕРІ
+        std::vector<std::tuple<double, double, double>> data_for_numerical_solution = rk.getCoords(); // СЃРѕР·РґР°РµРј РІРµРєС‚РѕСЂ РєРѕРѕСЂРґРёРЅР°С‚, РїРѕР»СѓС‡РµРЅРЅС‹С… С‡СЃРёР»РµРЅРЅС‹Рј СЂРµС€РµРЅРёРµРј
+        std::vector<double> twice_half_h_u = rk.getVectorOfTwiceHalfHU(); // РІРµРєС‚РѕСЂ РєРѕРѕСЂРґРёРЅР°С‚ v^i
+        std::vector<double> difference_of_v = rk.getVectorOfDifferenceOfV(); // РІРµРєС‚РѕСЂ vi-v^i
+        std::vector<double> vector_S = rk.getVectorOfS(); // РІРµРєС‚РѕСЂ РћР›Рџ
 
         std::vector<double> difference_of_u;
         std::vector<double> coordsOfU;
@@ -478,7 +472,7 @@ public:
         int size = 9;
 
         if (isConstH)
-            size = 3; // размер 3 для таблицы
+            size = 3; // СЂР°Р·РјРµСЂ 3 РґР»СЏ С‚Р°Р±Р»РёС†С‹
 
         if (item_current_idx == 0) {
             difference_of_u = rk.getVectorOfDifferenceU();
@@ -486,16 +480,16 @@ public:
             size += 2;
         }
 
-        std::vector<int> C1 = rk.getC1(); // вектор делений шагов 
-        std::vector<int> C2 = rk.getC2(); // вектор умножений шагов
+        std::vector<int> C1 = rk.getC1(); // РІРµРєС‚РѕСЂ РґРµР»РµРЅРёР№ С€Р°РіРѕРІ 
+        std::vector<int> C2 = rk.getC2(); // РІРµРєС‚РѕСЂ СѓРјРЅРѕР¶РµРЅРёР№ С€Р°РіРѕРІ
 
-        static ImGuiTableFlags flags = ImGuiTableFlags_Borders | ImGuiTableFlags_RowBg; // настройки для таблицы
+        static ImGuiTableFlags flags = ImGuiTableFlags_Borders | ImGuiTableFlags_RowBg; // РЅР°СЃС‚СЂРѕР№РєРё РґР»СЏ С‚Р°Р±Р»РёС†С‹
 
-        ImGui::SetNextWindowPos({ 0,220 }); // устанавливаем позицию для создаваемого окна для таблицы
-        ImGui::SetNextWindowSize({ 960,790 }); // устанавливаем размер для создаваемого окна для таблицы
-        ImGui::Begin("Table", 0 , flagsForWindows); // создаем окно с заданными настройками
+        ImGui::SetNextWindowPos({ 0,220 }); // СѓСЃС‚Р°РЅР°РІР»РёРІР°РµРј РїРѕР·РёС†РёСЋ РґР»СЏ СЃРѕР·РґР°РІР°РµРјРѕРіРѕ РѕРєРЅР° РґР»СЏ С‚Р°Р±Р»РёС†С‹
+        ImGui::SetNextWindowSize({ 960,790 }); // СѓСЃС‚Р°РЅР°РІР»РёРІР°РµРј СЂР°Р·РјРµСЂ РґР»СЏ СЃРѕР·РґР°РІР°РµРјРѕРіРѕ РѕРєРЅР° РґР»СЏ С‚Р°Р±Р»РёС†С‹
+        ImGui::Begin("Table", 0 , flagsForWindows); // СЃРѕР·РґР°РµРј РѕРєРЅРѕ СЃ Р·Р°РґР°РЅРЅС‹РјРё РЅР°СЃС‚СЂРѕР№РєР°РјРё
         
-        if (ImGui::BeginTable("table1", size, flags)) // создаем таблицу с заданными настройками
+        if (ImGui::BeginTable("table1", size, flags)) // СЃРѕР·РґР°РµРј С‚Р°Р±Р»РёС†Сѓ СЃ Р·Р°РґР°РЅРЅС‹РјРё РЅР°СЃС‚СЂРѕР№РєР°РјРё
         {
             if (true)
             {
