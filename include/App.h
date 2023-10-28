@@ -59,6 +59,8 @@ public:
             static bool isConstH = false;
             static bool isPressed = false;
             static bool isNotice = false;
+            const char* names[3] = { "X", "U", "U'" };
+            static bool opened[3] = { true , true, false };
 
             MakeWindowForInput(flagsForWindows); // вызываем функцию для создания окна для ввода шага и епсилон-границ
             MakeWindowForTasks(item_current_idx, flagsForWindows, isPressed); // вызываем функцию по созданию окна с всплывающим списком задач
@@ -67,24 +69,56 @@ public:
             makeWindowForCheckBoxAboutE(flagsForWindows, isConstH, isPressed);
             createButton(x0, u0, flagsForWindows, item_current_idx, isConstH, isPressed, isNotice, u_0, param_a, param_b);
             makeWindowForInfo(flagsForWindows, isPressed, item_current_idx, isConstH);
-            if (item_current_idx == 2)
+            if (item_current_idx == 2) {
+                makeWindowForSelectAxles(flagsForWindows, names, opened);
                 makeWindowForSecondTaskInput(flagsForWindows, isPressed, param_a, param_b, u_0);
+            }
 
 
             if (isPressed) { // если кнопка была нажата
-                createGraph(flagsForWindows, item_current_idx); // рисуем график
+                createGraph(flagsForWindows, item_current_idx, names, opened); // рисуем график
                 createTable(flagsForWindows, item_current_idx, isConstH); // создаем таблицу
             }
             else
                 clearTableAndGraph(flagsForWindows);
 
-            if (isNotice) {
+            if (isNotice)
                 makeWindowNoticeAboutCalculating(isNotice);
-            }
 
             m_window.clear();
             render();
         }
+    }
+
+    void makeWindowForSelectAxles(ImGuiWindowFlags& flagsForWindows, const char* names[3], bool (&opened)[3]) {
+
+        ImGui::SetNextWindowPos({1331,160});
+        ImGui::SetNextWindowSize({ 607,60 });
+
+        ImGui::Begin("ASDASD",0, flagsForWindows);
+
+        ImGui::Text("Set axles");
+
+        int counter = 0;
+
+        for (size_t count = 0; count < IM_ARRAYSIZE(opened); ++count) {
+            if (opened[count])
+                counter += 1;
+            else counter -= 1;
+        }
+
+        for (size_t count = 0; count < IM_ARRAYSIZE(opened); ++count)
+        {
+            if (count > 0)
+                ImGui::SameLine();
+            if (ImGui::Checkbox(names[count], &opened[count])) {
+                ++counter;
+                if (counter > 1)
+                    opened[count] = false;
+            }
+        }
+
+        ImGui::End();
     }
 
     void makeWindowForSecondTaskInput(ImGuiWindowFlags& flagsForWindows, bool& isPressed, int& param_a, int& param_b, double& u_0) {
@@ -143,7 +177,7 @@ public:
 
         if (item_current_idx == 2) {
             ImGui::SetNextWindowPos({ 1331,0 }); // устанавливаем позицию для будущего окна
-            ImGui::SetNextWindowSize({ 607,220 });
+            ImGui::SetNextWindowSize({ 607,160 });
         }
         else {
             ImGui::SetNextWindowPos({ 1013,0 }); // устанавливаем позицию для будущего окна
@@ -163,6 +197,9 @@ public:
                 double minH = *min_element(H.begin()+1, H.end());
                 ImGui::Text("MIN H: %.24lf", minH);
                 ImGui::Text("MAX H: %.24lf", maxH);
+
+                double diff_of_b_and_x_last = rk.getBorder().second - std::get<0>(rk.getCoords().back());
+                ImGui::Text("b - x_n: %.24lf", diff_of_b_and_x_last);
 
                 if (item_current_idx == 0) {
                     std::vector<double> diff = rk.getVectorOfDifferenceU();
@@ -442,7 +479,7 @@ public:
         //return isPressed; // возврщаем значение isPressed
     }
 
-    void createGraph(ImGuiWindowFlags& flagsForWindows, int& item_current_idx) { // функция для отрисовки графика
+    void createGraph(ImGuiWindowFlags& flagsForWindows, int& item_current_idx, const char* names[3], bool(&opened)[3]) { // функция для отрисовки графика
 
         std::vector<std::pair<double, double>> data_for_analytical_solution = rk.getCoordsForAnalytical_Solution(); // создаем вектор точек для аналитического решения, если аналитического решения нет, то тут будет пустой ветктор
 
@@ -475,14 +512,32 @@ public:
 
         ImGui::Begin("Graph", 0, flagsForWindows); // создаем окно с выбранными настройками
 
-        if (ImPlot::BeginPlot("Solution schedule", "x", "u", { 940,780 })) { // отрисовываем график
-            if (item_current_idx == 0) // если у нас тестовая задача, то надо нарисовать еще аналитическое решение
-                ImPlot::PlotLine("Analytical solution graph", x_of_analytical_solution, y_of_analytical_solution, size_of_analytical_solution); // отрисовываем линию
-            else if (item_current_idx == 2)
-                ImPlot::PlotLine("Phase portrait", y_of_numerical_solution, y__of_numerical_solution, size_of_analytical_solution); // отрисовываем линию
-            ImPlot::PlotLine("Numerical solution graph", x_of_numerical_solution, y_of_numerical_solution, size_of_numerical_solution); // отрисовываем линию
-            ImPlot::EndPlot(); // заканчиваем отрисовку графика
+        if (item_current_idx != 2) {
+            if (ImPlot::BeginPlot("Solution schedule", "x", "u", { 940,780 })) { // отрисовываем график
+                if (item_current_idx == 0) // если у нас тестовая задача, то надо нарисовать еще аналитическое решение
+                    ImPlot::PlotLine("Analytical solution graph", x_of_analytical_solution, y_of_analytical_solution, size_of_analytical_solution); // отрисовываем линию
+                ImPlot::PlotLine("Numerical solution graph", x_of_numerical_solution, y_of_numerical_solution, size_of_numerical_solution); // отрисовываем линию
+                ImPlot::EndPlot(); // заканчиваем отрисовку графика
+            }
         }
+        else {
+            if (opened[0] && opened[1]){
+                if (ImPlot::BeginPlot("Solution schedule", "x", "u", { 940,780 }))
+                    ImPlot::PlotLine("Numerical solution graph", x_of_numerical_solution, y_of_numerical_solution, size_of_numerical_solution); // отрисовываем линию
+                ImPlot::EndPlot(); // заканчиваем отрисовку графика
+            }
+            else if (opened[1] && opened[2]) {
+                if (ImPlot::BeginPlot("Solution schedule", "u", "u'", { 940,780 }))
+                    ImPlot::PlotLine("Phase portrait", y_of_numerical_solution, y__of_numerical_solution, size_of_numerical_solution); // отрисовываем линию
+                ImPlot::EndPlot(); // заканчиваем отрисовку графика
+            }
+            else if (opened[0] && opened[2]) {
+                if (ImPlot::BeginPlot("Solution schedule", "x", "u'", { 940,780 }))
+                    ImPlot::PlotLine("Numerical solution graph", x_of_numerical_solution, y__of_numerical_solution, size_of_numerical_solution); // отрисовываем линию
+                ImPlot::EndPlot(); // заканчиваем отрисовку графика
+            }
+        }
+
         ImGui::End(); // удаляем окно
     }
 
@@ -544,18 +599,18 @@ public:
                 ImGui::TableSetColumnIndex(0);
                 ImGui::Text("%d", row);
                 ImGui::TableSetColumnIndex(1);
-                ImGui::Text("%.12lf", std::get<0>(data_for_numerical_solution[row]));
+                ImGui::Text("%.24lf", std::get<0>(data_for_numerical_solution[row]));
                 ImGui::TableSetColumnIndex(2);
-                ImGui::Text("%.12lf", std::get<1>(data_for_numerical_solution[row]));
+                ImGui::Text("%.24lf", std::get<1>(data_for_numerical_solution[row]));
                 if (!isConstH) {
                     ImGui::TableSetColumnIndex(3);
-                    ImGui::Text("%.12lf", twice_half_h_u[row]);
+                    ImGui::Text("%.24lf", twice_half_h_u[row]);
                     ImGui::TableSetColumnIndex(4);
-                    ImGui::Text("%.12lf", difference_of_v[row]);
+                    ImGui::Text("%.24lf", difference_of_v[row]);
                     ImGui::TableSetColumnIndex(5);
-                    ImGui::Text("%.16lf", vector_S[row]);
+                    ImGui::Text("%.24lf", vector_S[row]);
                     ImGui::TableSetColumnIndex(6);
-                    ImGui::Text("%.12lf", vector_of_h[row]);
+                    ImGui::Text("%.24lf", vector_of_h[row]);
                     ImGui::TableSetColumnIndex(7);
                     ImGui::Text("%d", C1[row]);
                     ImGui::TableSetColumnIndex(8);
@@ -563,15 +618,15 @@ public:
                 }
                 if (item_current_idx == 0 && !isConstH) {
                     ImGui::TableSetColumnIndex(9);
-                    ImGui::Text("%.12lf", coordsOfU[row]);
+                    ImGui::Text("%.24lf", coordsOfU[row]);
                     ImGui::TableSetColumnIndex(10);
-                    ImGui::Text("%.12lf", difference_of_u[row]);
+                    ImGui::Text("%.24lf", difference_of_u[row]);
                 }
                 else if (item_current_idx == 0 && isConstH) {
                     ImGui::TableSetColumnIndex(3);
-                    ImGui::Text("%.12lf", coordsOfU[row]);
+                    ImGui::Text("%.24lf", coordsOfU[row]);
                     ImGui::TableSetColumnIndex(4);
-                    ImGui::Text("%.12lf", difference_of_u[row]);
+                    ImGui::Text("%.24lf", difference_of_u[row]);
                 }
             }
             ImGui::EndTable();
