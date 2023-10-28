@@ -284,9 +284,9 @@ private:
         double h = (m_b - m_a) / m_N_max;
         double x = m_a;
 
-        for (int count = 0; count < m_N_max; ++count) {
-            x += h;
+        for (int count = 0; count <= m_N_max; ++count) {
             m_analytical_solution_data.push_back({ x, test_func_analytical_solution(x)});
+            x += h;
             //std::cout << "COORD " << count << ":\t(" << m_analytical_solution_data.back().first << "; " << m_analytical_solution_data.back().second << ")" << std::endl;
         }
     }
