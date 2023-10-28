@@ -16,10 +16,12 @@
 class App {
 private:
     sf::RenderWindow m_window;
+    ImGuiIO io;
     RK rk;
 public:
     App() 
-    {}
+    {
+    }
     ~App() {
         ImGui::SFML::Shutdown();
     }
@@ -28,6 +30,7 @@ public:
         m_window.create(sf::VideoMode(1920, 1080, 32), "Cauchy problem");
         m_window.setFramerateLimit(60);
         ImGui::SFML::Init(m_window);
+        io = ImGui::GetIO();
         ImPlot::CreateContext();
 	}
 
@@ -55,13 +58,14 @@ public:
             static ImGuiWindowFlags flagsForWindows = ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoCollapse;
             static bool isConstH = false;
             static bool isPressed = false;
+            static bool isNotice = false;
 
             MakeWindowForInput(flagsForWindows); // вызываем функцию для создания окна для ввода шага и епсилон-границ
             MakeWindowForTasks(item_current_idx, flagsForWindows, isPressed); // вызываем функцию по созданию окна с всплывающим списком задач
             MakeWindowForInputInitialСonditions(x0,u0, flagsForWindows); // вызываем функцию по созданию окна для ввода начальных условий
             makeWindowForInputBorder(flagsForWindows);
             makeWindowForCheckBoxAboutE(flagsForWindows, isConstH, isPressed);
-            createButton(x0, u0, flagsForWindows, item_current_idx, isConstH, isPressed, u_0, param_a, param_b);
+            createButton(x0, u0, flagsForWindows, item_current_idx, isConstH, isPressed, isNotice, u_0, param_a, param_b);
             makeWindowForInfo(flagsForWindows, isPressed, item_current_idx, isConstH);
             if (item_current_idx == 2)
                 makeWindowForSecondTaskInput(flagsForWindows, isPressed, param_a, param_b, u_0);
@@ -73,6 +77,10 @@ public:
             }
             else
                 clearTableAndGraph(flagsForWindows);
+
+            if (isNotice) {
+                makeWindowNoticeAboutCalculating(isNotice);
+            }
 
             m_window.clear();
             render();
@@ -389,7 +397,25 @@ public:
         ImGui::EndChild(); // дочернее окно удаляется
     }
 
-    void createButton(double& x0, double& u0, ImGuiWindowFlags& flagsForWindows, int& item_current_idx, bool& isConstH, bool& isPressed, double& u_0, int& param_a, int& param_b) { // функция для создания кнопки, чтобы начать работу методом РК-4
+    void makeWindowNoticeAboutCalculating(bool& isNotice) {
+
+        ImGuiWindowFlags flagsForWindows = ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoCollapse ;
+
+        ImGui::SetNextWindowSize({ 300,50 });
+        ImGui::SetNextWindowPos(ImVec2(io.DisplaySize.x * 0.5f - 150, io.DisplaySize.y * 0.5f - 25));
+
+        if (isNotice)
+        {
+            ImGui::OpenPopup("Notice");
+
+            if (ImGui::BeginPopupModal("Notice", &isNotice, flagsForWindows)) {
+                ImGui::Text("Calculating was done!");
+                ImGui::EndPopup();
+            }
+        }
+    }
+
+    void createButton(double& x0, double& u0, ImGuiWindowFlags& flagsForWindows, int& item_current_idx, bool& isConstH, bool& isPressed, bool& isNotice, double& u_0, int& param_a, int& param_b) { // функция для создания кнопки, чтобы начать работу методом РК-4
 
         ImGui::SetNextWindowPos({ 0,181 }); // устанавливаем позицию для создаваемого окна
         ImGui::SetNextWindowSize({ 350,39 }); // устанавливаем размер для создаваемого окна
@@ -405,6 +431,7 @@ public:
             else
                 rk.run_func(x0, u0, (Task)item_current_idx, isConstH); // считаем задачу коши в точке (x0,u0)
             isPressed = true; // устанвливаем для переменной isPressed, что она была нажата
+            isNotice = true;
         }
 
         ImGui::SameLine(); // в той же строке
