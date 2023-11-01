@@ -53,8 +53,8 @@ public:
             static double x0 = 0;
             static double u0 = 1;
             static double u_0 = 1;
-            static int param_a = 1;
-            static int param_b = 2;
+            static double param_a = 1;
+            static double param_b = 2;
             static ImGuiWindowFlags flagsForWindows = ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoCollapse;
             static bool isConstH = false;
             static bool isPressed = false;
@@ -121,7 +121,7 @@ public:
         ImGui::End();
     }
 
-    void makeWindowForSecondTaskInput(ImGuiWindowFlags& flagsForWindows, bool& isPressed, int& param_a, int& param_b, double& u_0) {
+    void makeWindowForSecondTaskInput(ImGuiWindowFlags& flagsForWindows, bool& isPressed, double& param_a, double& param_b, double& u_0) {
         ImGui::SetNextWindowPos({ 1013,0 }); // устанавливаем позицию для будущего окна
         ImGui::SetNextWindowSize({ 317,220 });
 
@@ -147,7 +147,7 @@ public:
         ImGui::EndChild(); // удаляем дочернее окно
     }
 
-    void createInputParamA(ImGuiWindowFlags flagsForWindows, int& param_a) {
+    void createInputParamA(ImGuiWindowFlags flagsForWindows, double& param_a) {
 
         flagsForWindows |= ImGuiWindowFlags_NoBackground; // дополнительная настройка для окна, чтобы не было заднего фона
 
@@ -155,12 +155,13 @@ public:
 
         ImGui::SeparatorText("Input param A"); // дополнительный текст в окне
 
-        ImGui::InputInt(" ", &param_a, 1, 100); // поле для ввода double x
+        ImGui::InputDouble(" ", &param_a, 0.01f, 1.0f, "%.8f"); // поле для ввода double x
+
 
         ImGui::EndChild(); // удаляем дочернее окно
     }
 
-    void createInputParamB(ImGuiWindowFlags flagsForWindows, int& param_b) {
+    void createInputParamB(ImGuiWindowFlags flagsForWindows, double& param_b) {
 
         flagsForWindows |= ImGuiWindowFlags_NoBackground; // дополнительная настройка для окна, чтобы не было заднего фона
 
@@ -168,7 +169,9 @@ public:
 
         ImGui::SeparatorText("Input param B"); // дополнительный текст в окне
 
-        ImGui::InputInt(" ", &param_b, 1, 100); // поле для ввода double x
+        ImGui::InputDouble(" ", &param_b, 0.01f, 1.0f, "%.8f"); // поле для ввода double x
+
+        //ImGui::InputDouble(" ", &x0, 0.01f, 1.0f, "%.8f");
 
         ImGui::EndChild(); // удаляем дочернее окно
     }
@@ -452,7 +455,7 @@ public:
         }
     }
 
-    void createButton(double& x0, double& u0, ImGuiWindowFlags& flagsForWindows, int& item_current_idx, bool& isConstH, bool& isPressed, bool& isNotice, double& u_0, int& param_a, int& param_b) { // функция для создания кнопки, чтобы начать работу методом РК-4
+    void createButton(double& x0, double& u0, ImGuiWindowFlags& flagsForWindows, int& item_current_idx, bool& isConstH, bool& isPressed, bool& isNotice, double& u_0, double& param_a, double& param_b) { // функция для создания кнопки, чтобы начать работу методом РК-4
 
         ImGui::SetNextWindowPos({ 0,181 }); // устанавливаем позицию для создаваемого окна
         ImGui::SetNextWindowSize({ 350,39 }); // устанавливаем размер для создаваемого окна

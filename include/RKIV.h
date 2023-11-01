@@ -59,7 +59,7 @@ private:
     }
 
     double func_of_second_task_for_f(double x, double u, double u_, double a, double b) {
-        return (-1)*(u_ * u_ * a + b * sin(u));
+        return (-b*sin(u) - a*u_*u_);
     }
 
     double func_of_second_task_for_g(double x, double u, double u_) {
@@ -89,6 +89,7 @@ private:
     std::tuple<double, double, double> RKIV(double x, double u, double h, Task task, double u_ = 0, double a = 1, double b = 2) { // реализация метода
 
         double k1, k2, k3, k4;
+        double l1, l2, l3, l4;
 
         if (task == Task::TEST_FUNC) {
             k1 = test_func(x, u); // считаем k1
@@ -103,22 +104,20 @@ private:
             k4 = func_of_first_task(x + h, u + h * k3); // считаем k4
         }
         else if (task == Task::SECOND_TASK) {
-            k1 = func_of_second_task_for_f(x, u, u_, a, b);
-            double l1 = func_of_second_task_for_g(x, u, u_);
+            k1 = func_of_second_task_for_g(x, u, u_);
+            l1 = func_of_second_task_for_f(x, u, u_,a,b);
 
-            k2 = func_of_second_task_for_f(x + h / 2, u + k1 / 2, u_ + l1 / 2, a, b);
-            double l2 = func_of_second_task_for_g(x + h / 2, u + k1 / 2, u_ + l1 / 2);
+            k2 = func_of_second_task_for_g(x + h / 2, u + h / 2 * k1, u_ + h / 2 * l1);
+            l2 = func_of_second_task_for_f(x + h / 2, u + h / 2 * k1, u_ + h / 2 * l1, a, b);
 
-            k3 = func_of_second_task_for_f(x + h / 2, u + k2 / 2, u_ + l2 / 2, a, b);
-            double l3 = func_of_second_task_for_g(x + h / 2, u + k2 / 2, u_ + l2 / 2);
+            k3 = func_of_second_task_for_g(x + h / 2, u + h / 2 * k2, u_ + h / 2 * l2);
+            l3 = func_of_second_task_for_f(x + h / 2, u + h / 2 * k2, u_ + h / 2 * l2, a, b);
 
-            k4 = func_of_second_task_for_f(x + h, u + k3, u_ + l3, a, b);
-            double l4 = func_of_second_task_for_g(x + h, u + k3, u_ + l3);
-
-            u_ = u_ + h / 6 * (l1 + 2 * l2 + 2 * l3 + l4);
+            k4 = func_of_second_task_for_g(x + h / 2, u + h  * k3, u_ + h * l3);
+            l4 = func_of_second_task_for_f(x + h / 2, u + h * k3, u_ + h * l3, a, b);
         }
 
-        return  std::make_tuple(getNewX(x, h), getNewU({k1,k2,k3,k4}, u, h) , u_); // создаем пару (x,u) из чисел, полученных через getNewX, getNewU
+        return  std::make_tuple(getNewX(x, h), getNewU({ k1,k2,k3,k4 }, u, h), getNewU({ l1,l2,l3,l4 }, u_, h)); // создаем пару (x,u) из чисел, полученных через getNewX, getNewU
     }
 
     Actions_with_H checkUpDown(double u_with_h, double u_with_twice_half_h) {
