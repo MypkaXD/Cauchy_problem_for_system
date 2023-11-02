@@ -34,12 +34,15 @@ private:
     double m_a = 0; // левая граница
     double m_b = 1; // правая граница
 
-    int m_N_max = 100; // максимальное число шагов
+    int m_N_max = 10000; // максимальное число шагов
+    
     int p = 4; // порядок метода
 
-    std::vector<double> m_vector_of_h; // веткор для хранения шагов
-    std::vector<std::tuple<double, double, double>> m_data; // вектор m_data для хранения точек x и u
+    std::vector<std::tuple<double, double, double>> m_data; // вектор m_data для хранения точки (x,u,u')
+    
     std::vector<std::pair<double, double>> m_analytical_solution_data; // вектор для хранения аналитического решения
+    
+    std::vector<double> m_vector_of_h; // веткор для хранения шагов
     std::vector<double> m_twice_half_h_u; // вектор для хранения точек, посчитанных с двойным шагом
     std::vector<double> difference_of_v; // вектор разности точки с обычным шагом и двойным
     std::vector<double> vector_S; // вектор ОЛП
@@ -122,17 +125,18 @@ private:
             u_ += h / 6 * (l1 + 2 * l2 + 2 * l3 + l4);
         }
 
-        return  std::make_tuple(getNewX(x, h), getNewU({ k1,k2,k3,k4 }, u, h), u_); // создаем пару (x,u) из чисел, полученных через getNewX, getNewU
+        return  std::make_tuple(getNewX(x, h), getNewU({ k1,k2,k3,k4 }, u, h), u_); // создаем коллекию (x,u,u')
     }
 
     ACTIONS_WITH_H checkUpDown(std::tuple<double, double, double> coords_with_h, std::tuple<double, double, double> coords_with_twice_half_h) {
         
-        double S1 = abs(getS(std::get<1>(coords_with_h), std::get<1>(coords_with_twice_half_h))); // получаем S и сразу берем от неё модуль
-        double S2 = abs(getS(std::get<2>(coords_with_h), std::get<2>(coords_with_twice_half_h)));
+        double S1 = abs(getS(std::get<1>(coords_with_h), std::get<1>(coords_with_twice_half_h))); // получаем S от u и сразу берем от неё модуль
+        double S2 = abs(getS(std::get<2>(coords_with_h), std::get<2>(coords_with_twice_half_h))); // получаем S от u' и сразу берем от неё модуль
 
-        double S = std::max(S1, S2);
+        double S = std::max(S1, S2); // вычисляем max между S1 и S2
 
-        vector_S.push_back(S);
+        vector_S.push_back(S); // сохраняем максимальное значение
+        // Даже если у нас обычная задача #1 и тестовая задача будет, то S1 считается для u, а S2 считается для u' = 0, так как u' = 0; u'^ = 0
 
         if (S >= m_E_check_down && S <= m_E_check_up) { // если S находится в границе "локальной погрешности" то возвращаем статус NOTHING
             return ACTIONS_WITH_H::NOTHING;
@@ -154,102 +158,104 @@ private:
             return ACTIONS_WITH_X::NOTHING; // если мы попали левее эпсилон - правая-граница, то ничего не делаем и продолжаем работу
     }
 
-    void calculate_with_e(double x0, double u0, Task task, double u_0 = 0, double a = 0, double b = 0) {
+    void calculate_with_e(double x0, double u0, Task task, double u_0 = 0, double a = 0, double b = 0) { // функция для рассчета численного решения с переменным шагом
 
-        m_data.push_back({ x0,u0, u_0 }); // пушим в вектор начальные условия
-        m_vector_of_h.push_back(m_h_start);
-        m_twice_half_h_u.push_back(u0);
-        difference_of_v.push_back(0);
-        vector_S.push_back(0);
-        C2.push_back(0);
-        C1.push_back(0);
+        m_data.push_back({ x0,u0, u_0 }); // пушим в вектор координат начальные условия (x0, u0, u'0)
+        m_vector_of_h.push_back(0); // пушим в вектор шагов начальный шаг
+        m_twice_half_h_u.push_back(u0); // пушим в вектор v^ (u0)
+        difference_of_v.push_back(0); // пушим в вектор разности v - v^ (0)
+        vector_S.push_back(0); // пушим в вектор ОЛП (0)
+        C2.push_back(0); // пушим в вектор умножений (0)
+        C1.push_back(0); // пушим в вектор делений (0)
 
-        if (task == Task::TEST_FUNC) {
-            m_vecotor_u.push_back(test_func_analytical_solution(x0));
-            difference_of_u.push_back(0);
+        if (task == Task::TEST_FUNC) { // если у нас тестовая задача
+            m_vecotor_u.push_back(test_func_analytical_solution(x0)); // пушим в вектор аналитическое решение в точке (x0)
+            difference_of_u.push_back(0); // пушим в вектор разность между численным и аналитическим решением в точке (x0)
         }
 
-        std::tuple<double, double, double> current_coords;
-        std::tuple<double, double, double> coords_with_h; // создаем вектор coords_with_h для хранения точек x и u с шагом h
-        std::tuple<double, double, double>  coords_with_half_h;
-        std::tuple<double, double, double>  coords_with_twice_half_h;
+        std::tuple<double, double, double> current_coords; // создаем коллекцию current_coords текущих координат
+        std::tuple<double, double, double> coords_with_h; // создаем коллекцию coords_with_h для хранения точек (x, u, u') с шагом h
+        std::tuple<double, double, double>  coords_with_half_h; // создаем коллекцию coords_with_half_h для хранения точек (x, u, u') с шагом h/2
+        std::tuple<double, double, double>  coords_with_twice_half_h; // создаем коллекцию coords_with_twice_half_h для хранения точек (x, u, u') с двойным шагом h/2
 
-        int C1count = 0;
-        int C2count = 0;
+        int C1count = 0; // счетчик делений
+        int C2count = 0; // счетчик умножений
 
-        double h = m_h_start;
-        double next_x;
+        double h = m_h_start; // текущий шаг
+        double next_x; // следующая точка x
 
-        bool wasDivideStep = false;
+        bool wasDivideStep = false; // булева переменная для отслеживания был ли поделен шаг пополам
         
-        int N = m_N_max;
+        int N = m_N_max; // счетчик для отслеживания, чтобы не выйти за максимальное число шагов
 
-        while (N > 0) {
+        while (N > 0) { // считаем пока не выйдем за максимально допустимое число шагов
             
-            current_coords = m_data.back();
+            current_coords = m_data.back(); // получаем текущие координаты
 
-            next_x = getNewX(std::get<0>(current_coords), h);
+            next_x = getNewX(std::get<0>(current_coords), h); // получаем x с шагом h
 
-            ACTIONS_WITH_X act_for_x = checkRight(next_x);
+            ACTIONS_WITH_X act_for_x = checkRight(next_x); // проверям выход x за границу
 
-            if (act_for_x == ACTIONS_WITH_X::NOTHING || act_for_x == ACTIONS_WITH_X::STOP) {
+            if (act_for_x == ACTIONS_WITH_X::NOTHING || act_for_x == ACTIONS_WITH_X::STOP) { // если x не вышел за границу или находится в епсилон окрестности правой границы
 
-                if (wasDivideStep)
-                    coords_with_h = coords_with_twice_half_h;
-                else
-                    coords_with_h = RKIV(std::get<0>(current_coords), std::get<1>(current_coords), h, task, std::get<2>(current_coords), a, b);
-                coords_with_half_h = RKIV(std::get<0>(current_coords), std::get<1>(current_coords), h / 2, task, std::get<2>(current_coords), a, b);
-                coords_with_twice_half_h = RKIV(std::get<0>(coords_with_half_h), std::get<1>(coords_with_half_h), h / 2, task, std::get<2>(coords_with_half_h), a, b);
+                if (wasDivideStep) // был ли поделен шаг в предыдущем пополам
+                    coords_with_h = coords_with_twice_half_h; // если да, то координаты с шагом h' = h/2 не надо просчитывать, так как мы их уже имеем (ОПТИМИЗАЦИЯ)
+                else // если шаг не был поделен
+                    coords_with_h = RKIV(std::get<0>(current_coords), std::get<1>(current_coords), h, task, std::get<2>(current_coords), a, b); // получаем координаты из текущей точки с шагом h
+                coords_with_half_h = RKIV(std::get<0>(current_coords), std::get<1>(current_coords), h / 2, task, std::get<2>(current_coords), a, b); // получаем координаты из текущей точки с шагом h/2
+                coords_with_twice_half_h = RKIV(std::get<0>(coords_with_half_h), std::get<1>(coords_with_half_h), h / 2, task, std::get<2>(coords_with_half_h), a, b); // получаем координаты из точки coords_with_half_h с шагом h/2
 
-                ACTIONS_WITH_H act_for_h = checkUpDown(coords_with_h, coords_with_twice_half_h);
+                ACTIONS_WITH_H act_for_h = checkUpDown(coords_with_h, coords_with_twice_half_h); // проверям на локальную погрешность
 
-                if (act_for_h == ACTIONS_WITH_H::NOTHING) {
-                    m_twice_half_h_u.push_back(std::get<1>(coords_with_twice_half_h));
-                    difference_of_v.push_back(std::get<1>(coords_with_h) - std::get<1>(coords_with_twice_half_h));
-                    m_data.push_back(coords_with_h);
-                    m_vector_of_h.push_back(h);
-                    if (task == Task::TEST_FUNC) {
-                        m_vecotor_u.push_back(test_func_analytical_solution(std::get<0>(coords_with_h)));
-                        difference_of_u.push_back(abs(m_vecotor_u.back() - std::get<1>(coords_with_h)));
+                if (act_for_h == ACTIONS_WITH_H::NOTHING) { // если всё "НОРМ"
+                    m_twice_half_h_u.push_back(std::get<1>(coords_with_twice_half_h)); // сохраняем в вектор точку, полученную двойным шагом
+                    difference_of_v.push_back(std::get<1>(coords_with_h) - std::get<1>(coords_with_twice_half_h)); // разность между точкой полученный с помощью целого шага и двойного половинного
+                    m_data.push_back(coords_with_h); // сохраняем полученные координаты
+                    m_vector_of_h.push_back(h); // сохраняем в вектор текущий шаг
+                    C1.push_back(C1count); // сохраняем число делений шага
+                    C2.push_back(C2count); // сохраняем число умножений шага
+                    
+                    if (task == Task::TEST_FUNC) { // если у нас тестовая задача
+                        m_vecotor_u.push_back(test_func_analytical_solution(std::get<0>(coords_with_h))); // сохраняем точку для аналитического решения
+                        difference_of_u.push_back(abs(m_vecotor_u.back() - std::get<1>(coords_with_h))); // сохраняем разность между аналитическим и численным решением
                     }
-                    C1.push_back(C1count);
-                    C2.push_back(C2count);
 
-                    --N;
-                    C1count = 0;
-                    C2count = 0;
-                    wasDivideStep = false;
+                    --N; // уменьшаем N на 1 = шаг был сделан
+                    C1count = 0; // зануляем число удвоений шага
+                    C2count = 0; // зануляем число умножений шага
+                    wasDivideStep = false; // устанавливаем false, чтобы не было непредвиденных обстоятельств
                 }
-                else if (act_for_h == ACTIONS_WITH_H::MULTIPLY_BY_2) {
-                    m_twice_half_h_u.push_back(std::get<1>(coords_with_twice_half_h));
-                    difference_of_v.push_back(std::get<1>(coords_with_h) - std::get<1>(coords_with_twice_half_h));
-                    m_data.push_back(coords_with_h);
-                    m_vector_of_h.push_back(h);
-                    if (task == Task::TEST_FUNC) {
-                        m_vecotor_u.push_back(test_func_analytical_solution(std::get<0>(coords_with_h)));
-                        difference_of_u.push_back(abs(m_vecotor_u.back() - std::get<1>(coords_with_h)));
+                else if (act_for_h == ACTIONS_WITH_H::MULTIPLY_BY_2) { // если нам надо умножить шаг на два
+                    m_twice_half_h_u.push_back(std::get<1>(coords_with_twice_half_h)); // сохраняем в вектор точку, полученную двойным шагом
+                    difference_of_v.push_back(std::get<1>(coords_with_h) - std::get<1>(coords_with_twice_half_h)); // разность между точкой полученный с помощью целого шага и двойного половинного
+                    m_data.push_back(coords_with_h); // сохраняем полученные координаты
+                    m_vector_of_h.push_back(h); // сохраняем в вектор текущий шаг
+                    C1.push_back(C1count); // сохраняем число делений шага
+                    C2.push_back(++C2count); // сохраняем число умножений шага + 1, так как мы умножили наш шаг (не забываем)
+                    
+                    if (task == Task::TEST_FUNC) { // если у нас тестовая задача
+                        m_vecotor_u.push_back(test_func_analytical_solution(std::get<0>(coords_with_h))); // сохраняем точку для аналитического решения
+                        difference_of_u.push_back(abs(m_vecotor_u.back() - std::get<1>(coords_with_h))); // сохраняем разность между аналитическим и численным решением
                     }
-                    C1.push_back(C1count);
-                    C2.push_back(++C2count);
 
-                    --N;
-                    h *= 2;
-                    C1count = 0;
-                    C2count = 0;
-                    wasDivideStep = false;
+                    --N; // уменьшаем N на 1 = шаг был сделан
+                    h *= 2; // умножаем шаг на два
+                    C1count = 0; // зануляем число удвоений шага
+                    C2count = 0; // зануляем число умножений шага
+                    wasDivideStep = false; // устанавливаем false, чтобы не было непредвиденных обстоятельств
                 }
-                else if (act_for_h == ACTIONS_WITH_H::DIVIDE_BY_2_AND_RECALCULATE) {
-                    h /= 2;
-                    C1count += 1;
-                    wasDivideStep = true;
+                else if (act_for_h == ACTIONS_WITH_H::DIVIDE_BY_2_AND_RECALCULATE) { // если нам надо поделить шаг пополам и пересчитать точку
+                    h /= 2; // делим шаг на два
+                    C1count += 1; // число делений увеличиваем на 1
+                    wasDivideStep = true; // шаг был поделен, поэтому true (ОПТИМИЗАЦИЯ)
                 }
 
-                if (act_for_x == ACTIONS_WITH_X::STOP)
-                    break;
+                if (act_for_x == ACTIONS_WITH_X::STOP) // если x попал в епсилон область правой границы
+                    break; // то заканчиваем наши вычисления
             }
-            else if (act_for_x == ACTIONS_WITH_X::GET_LAST) {
-                wasDivideStep = false;
-                h = m_b - std::get<0>(current_coords);
+            else if (act_for_x == ACTIONS_WITH_X::GET_LAST) { // если нам нужно получить последную точку
+                wasDivideStep = false; // устанавливаем false, чтобы не было непредвиденных обстоятельств
+                h = m_b - std::get<0>(current_coords); // шаг = правая граница - текущая координата (он 100% будет <= шага который был до этого, так как в противном случаем мы бы не пересели правую границу)
             }
         }
     }
@@ -305,7 +311,6 @@ private:
         for (int count = 0; count <= m_N_max; ++count) {
             m_analytical_solution_data.push_back({ x, test_func_analytical_solution(x)});
             x += h;
-            //std::cout << "COORD " << count << ":\t(" << m_analytical_solution_data.back().first << "; " << m_analytical_solution_data.back().second << ")" << std::endl;
         }
     }
 
