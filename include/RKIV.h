@@ -1,16 +1,20 @@
-#include <vector>
+п»ї#include <vector>
 #include <iostream>
 #include <tuple>
 #include <math.h>
 
 #pragma once
 
-enum class Actions_with_H { // enum class для установки статуса шага
-    MULTIPLY_BY_2, // необходимо умножить на два
-    NOTHING, // ничего не делаем
-    DIVIDE_BY_2_AND_RECALCULATE, // делим на два и пересчитываем
-    GET_LAST, // получаем последнюю точку
-    STOP // останавливаемся
+enum class ACTIONS_WITH_X {
+    NOTHING,
+    GET_LAST,
+    STOP
+};
+
+enum class ACTIONS_WITH_H {
+    NOTHING, // РЅРёС‡РµРіРѕ РЅРµ РґРµР»Р°РµРј
+    MULTIPLY_BY_2, // РЅРµРѕР±С…РѕРґРёРјРѕ СѓРјРЅРѕР¶РёС‚СЊ РЅР° РґРІР°
+    DIVIDE_BY_2_AND_RECALCULATE, // РґРµР»РёРј РЅР° РґРІР° Рё РїРµСЂРµСЃС‡РёС‚С‹РІР°РµРј
 };
 
 enum class Task {
@@ -22,38 +26,38 @@ enum class Task {
 class RK {
 private:
 
-    double m_h_start = 0.1; // численный шаг интегрирования (начальный)
-    double m_E_check_right = 0.5 * 10e-6; // проверка для "выхода" справа
-    double m_E_check_up = 0.5 * 10e-4; // проверка для "вверха"
-    double m_E_check_down = ((m_E_check_up ) / 32); // проверка для "низа"
+    double m_h_start = 0.1; // С‡РёСЃР»РµРЅРЅС‹Р№ С€Р°Рі РёРЅС‚РµРіСЂРёСЂРѕРІР°РЅРёСЏ (РЅР°С‡Р°Р»СЊРЅС‹Р№)
+    double m_E_check_right = 0.5 * 10e-6; // РїСЂРѕРІРµСЂРєР° РґР»СЏ "РІС‹С…РѕРґР°" СЃРїСЂР°РІР°
+    double m_E_check_up = 0.5 * 10e-4; // РїСЂРѕРІРµСЂРєР° РґР»СЏ "РІРІРµСЂС…Р°"
+    double m_E_check_down = ((m_E_check_up ) / 32); // РїСЂРѕРІРµСЂРєР° РґР»СЏ "РЅРёР·Р°"
 
-    double m_a = 0; // левая граница
-    double m_b = 1; // правая граница
+    double m_a = 0; // Р»РµРІР°СЏ РіСЂР°РЅРёС†Р°
+    double m_b = 1; // РїСЂР°РІР°СЏ РіСЂР°РЅРёС†Р°
 
-    int m_N_max = 100; // максимальное число шагов
-    int p = 4; // порядок метода
+    int m_N_max = 100; // РјР°РєСЃРёРјР°Р»СЊРЅРѕРµ С‡РёСЃР»Рѕ С€Р°РіРѕРІ
+    int p = 4; // РїРѕСЂСЏРґРѕРє РјРµС‚РѕРґР°
 
-    std::vector<double> m_vector_of_h; // веткор для хранения шагов
-    std::vector<std::tuple<double, double, double>> m_data; // вектор m_data для хранения точек x и u
-    std::vector<std::pair<double, double>> m_analytical_solution_data; // вектор для хранения аналитического решения
-    std::vector<double> m_twice_half_h_u; // вектор для хранения точек, посчитанных с двойным шагом
-    std::vector<double> difference_of_v; // вектор разности точки с обычным шагом и двойным
-    std::vector<double> vector_S; // вектор ОЛП
-    std::vector<double> difference_of_u; // вектор разности точки, полученной численно и аналитически
-    std::vector<double> m_vecotor_u; // веткор для точек аналитического решения
+    std::vector<double> m_vector_of_h; // РІРµС‚РєРѕСЂ РґР»СЏ С…СЂР°РЅРµРЅРёСЏ С€Р°РіРѕРІ
+    std::vector<std::tuple<double, double, double>> m_data; // РІРµРєС‚РѕСЂ m_data РґР»СЏ С…СЂР°РЅРµРЅРёСЏ С‚РѕС‡РµРє x Рё u
+    std::vector<std::pair<double, double>> m_analytical_solution_data; // РІРµРєС‚РѕСЂ РґР»СЏ С…СЂР°РЅРµРЅРёСЏ Р°РЅР°Р»РёС‚РёС‡РµСЃРєРѕРіРѕ СЂРµС€РµРЅРёСЏ
+    std::vector<double> m_twice_half_h_u; // РІРµРєС‚РѕСЂ РґР»СЏ С…СЂР°РЅРµРЅРёСЏ С‚РѕС‡РµРє, РїРѕСЃС‡РёС‚Р°РЅРЅС‹С… СЃ РґРІРѕР№РЅС‹Рј С€Р°РіРѕРј
+    std::vector<double> difference_of_v; // РІРµРєС‚РѕСЂ СЂР°Р·РЅРѕСЃС‚Рё С‚РѕС‡РєРё СЃ РѕР±С‹С‡РЅС‹Рј С€Р°РіРѕРј Рё РґРІРѕР№РЅС‹Рј
+    std::vector<double> vector_S; // РІРµРєС‚РѕСЂ РћР›Рџ
+    std::vector<double> difference_of_u; // РІРµРєС‚РѕСЂ СЂР°Р·РЅРѕСЃС‚Рё С‚РѕС‡РєРё, РїРѕР»СѓС‡РµРЅРЅРѕР№ С‡РёСЃР»РµРЅРЅРѕ Рё Р°РЅР°Р»РёС‚РёС‡РµСЃРєРё
+    std::vector<double> m_vecotor_u; // РІРµС‚РєРѕСЂ РґР»СЏ С‚РѕС‡РµРє Р°РЅР°Р»РёС‚РёС‡РµСЃРєРѕРіРѕ СЂРµС€РµРЅРёСЏ
 
-    std::vector<int> C1; // вектор кол-ва деления шага
-    std::vector<int> C2; // вектор кол-ва умножения шага
+    std::vector<int> C1; // РІРµРєС‚РѕСЂ РєРѕР»-РІР° РґРµР»РµРЅРёСЏ С€Р°РіР°
+    std::vector<int> C2; // РІРµРєС‚РѕСЂ РєРѕР»-РІР° СѓРјРЅРѕР¶РµРЅРёСЏ С€Р°РіР°
 
 
-    double test_func(double x, double u) { // реализация функции du/dx для тестовой задачи
-        // У нас 5-ый №команды => du/dx = (-1)^5*5/2*u => du/dx = -5/2*u
+    double test_func(double x, double u) { // СЂРµР°Р»РёР·Р°С†РёСЏ С„СѓРЅРєС†РёРё du/dx РґР»СЏ С‚РµСЃС‚РѕРІРѕР№ Р·Р°РґР°С‡Рё
+        // РЈ РЅР°СЃ 5-С‹Р№ в„–РєРѕРјР°РЅРґС‹ => du/dx = (-1)^5*5/2*u => du/dx = -5/2*u
 
         return (-5/2*u);
     }
 
-    double func_of_first_task(double x, double u) { // реализация фунцкии du/dx для задачи №1
-        // У нас 5-ый №команды => du/dx = ln(x+1)/(x^2+1)
+    double func_of_first_task(double x, double u) { // СЂРµР°Р»РёР·Р°С†РёСЏ С„СѓРЅС†РєРёРё du/dx РґР»СЏ Р·Р°РґР°С‡Рё в„–1
+        // РЈ РЅР°СЃ 5-С‹Р№ в„–РєРѕРјР°РЅРґС‹ => du/dx = ln(x+1)/(x^2+1)
 
         return ((log(x+1)/(1+x*x))*u*u+u-u*u*u*sin(10*x));
     }
@@ -70,85 +74,89 @@ private:
         return (exp(((-5) / 2) * (x)));
     }
 
-    double getNewX(double x, double h) { // получаем новый x
-        return (x + h); // считаем новый x
+    double getNewX(double x, double h) { // РїРѕР»СѓС‡Р°РµРј РЅРѕРІС‹Р№ x
+        return (x + h); // СЃС‡РёС‚Р°РµРј РЅРѕРІС‹Р№ x
     }
 
-    double getNewU(std::vector<double> k, double u, double h) { // получаем новый u
-        if (k.size() != 4) // выбрасываем ошибку, если размер вектора k-коэффициентов != 4. Такое впринципе невозможно, но путь будет
+    double getNewU(std::vector<double> k, double u, double h) { // РїРѕР»СѓС‡Р°РµРј РЅРѕРІС‹Р№ u
+        if (k.size() != 4) // РІС‹Р±СЂР°СЃС‹РІР°РµРј РѕС€РёР±РєСѓ, РµСЃР»Рё СЂР°Р·РјРµСЂ РІРµРєС‚РѕСЂР° k-РєРѕСЌС„С„РёС†РёРµРЅС‚РѕРІ != 4. РўР°РєРѕРµ РІРїСЂРёРЅС†РёРїРµ РЅРµРІРѕР·РјРѕР¶РЅРѕ, РЅРѕ РїСѓС‚СЊ Р±СѓРґРµС‚
             throw ("ERROR: The vector of K-koef isn't contain 4 elems");
         else {
-            return (u + h / 6 * (k[0] + 2 * k[1] + 2 * k[2] + k[3])); // считаем новый u
+            return (u + h / 6 * (k[0] + 2 * k[1] + 2 * k[2] + k[3])); // СЃС‡РёС‚Р°РµРј РЅРѕРІС‹Р№ u
         }
     }
 
     double getS(double u_with_h, double u_with_twice_half_h) {
-        return ((u_with_twice_half_h - u_with_h) / ((2 << (p - 1)) - 1)); // считаем S по формуле S = (v_h/2(n+1) - v_h(n+1)) / (2^p - 1)
+        return ((u_with_twice_half_h - u_with_h) / ((2 << (p - 1)) - 1)); // СЃС‡РёС‚Р°РµРј S РїРѕ С„РѕСЂРјСѓР»Рµ S = (v_h/2(n+1) - v_h(n+1)) / (2^p - 1)
     }
 
-    std::tuple<double, double, double> RKIV(double x, double u, double h, Task task, double u_ = 0, double a = 1, double b = 2) { // реализация метода
+    std::tuple<double, double, double> RKIV(double x, double u, double h, Task task, double u_ = 0, double a = 1, double b = 2) { // СЂРµР°Р»РёР·Р°С†РёСЏ РјРµС‚РѕРґР°
 
         double k1, k2, k3, k4;
-        double l1, l2, l3, l4;
 
         if (task == Task::TEST_FUNC) {
-            k1 = test_func(x, u); // считаем k1
-            k2 = test_func(x + h / 2, u + h / 2 * k1); // считаем k2
-            k3 = test_func(x + h / 2, u + h / 2 * k2); // считаем k3
-            k4 = test_func(x + h, u + h * k3); // считаем k4
+            k1 = test_func(x, u); // СЃС‡РёС‚Р°РµРј k1
+            k2 = test_func(x + h / 2, u + h / 2 * k1); // СЃС‡РёС‚Р°РµРј k2
+            k3 = test_func(x + h / 2, u + h / 2 * k2); // СЃС‡РёС‚Р°РµРј k3
+            k4 = test_func(x + h, u + h * k3); // СЃС‡РёС‚Р°РµРј k4
         }
         else if (task == Task::FIRST_TASK) {
-            k1 = func_of_first_task(x, u); // считаем k1
-            k2 = func_of_first_task(x + h / 2, u + h / 2 * k1); // считаем k2
-            k3 = func_of_first_task(x + h / 2, u + h / 2 * k2); // считаем k3
-            k4 = func_of_first_task(x + h, u + h * k3); // считаем k4
+            k1 = func_of_first_task(x, u); // СЃС‡РёС‚Р°РµРј k1
+            k2 = func_of_first_task(x + h / 2, u + h / 2 * k1); // СЃС‡РёС‚Р°РµРј k2
+            k3 = func_of_first_task(x + h / 2, u + h / 2 * k2); // СЃС‡РёС‚Р°РµРј k3
+            k4 = func_of_first_task(x + h, u + h * k3); // СЃС‡РёС‚Р°РµРј k4
         }
         else if (task == Task::SECOND_TASK) {
             k1 = func_of_second_task_for_g(x, u, u_);
-            l1 = func_of_second_task_for_f(x, u, u_,a,b);
+            double l1 = func_of_second_task_for_f(x, u, u_,a,b);
 
             k2 = func_of_second_task_for_g(x + h / 2, u + h / 2 * k1, u_ + h / 2 * l1);
-            l2 = func_of_second_task_for_f(x + h / 2, u + h / 2 * k1, u_ + h / 2 * l1, a, b);
+            double l2 = func_of_second_task_for_f(x + h / 2, u + h / 2 * k1, u_ + h / 2 * l1, a, b);
 
             k3 = func_of_second_task_for_g(x + h / 2, u + h / 2 * k2, u_ + h / 2 * l2);
-            l3 = func_of_second_task_for_f(x + h / 2, u + h / 2 * k2, u_ + h / 2 * l2, a, b);
+            double l3 = func_of_second_task_for_f(x + h / 2, u + h / 2 * k2, u_ + h / 2 * l2, a, b);
 
             k4 = func_of_second_task_for_g(x + h / 2, u + h  * k3, u_ + h * l3);
-            l4 = func_of_second_task_for_f(x + h / 2, u + h * k3, u_ + h * l3, a, b);
+            double l4 = func_of_second_task_for_f(x + h / 2, u + h * k3, u_ + h * l3, a, b);
+
+            u_ += h / 6 * (l1 + 2 * l2 + 2 * l3 + l4);
         }
 
-        return  std::make_tuple(getNewX(x, h), getNewU({ k1,k2,k3,k4 }, u, h), getNewU({ l1,l2,l3,l4 }, u_, h)); // создаем пару (x,u) из чисел, полученных через getNewX, getNewU
+        return  std::make_tuple(getNewX(x, h), getNewU({ k1,k2,k3,k4 }, u, h), u_); // СЃРѕР·РґР°РµРј РїР°СЂСѓ (x,u) РёР· С‡РёСЃРµР», РїРѕР»СѓС‡РµРЅРЅС‹С… С‡РµСЂРµР· getNewX, getNewU
     }
 
-    Actions_with_H checkUpDown(double u_with_h, double u_with_twice_half_h) {
+    ACTIONS_WITH_H checkUpDown(std::tuple<double, double, double> coords_with_h, std::tuple<double, double, double> coords_with_twice_half_h) {
         
-        double S = abs(getS(u_with_h, u_with_twice_half_h)); // получаем S и сразу берем от неё модуль
+        double S1 = abs(getS(std::get<1>(coords_with_h), std::get<1>(coords_with_twice_half_h))); // РїРѕР»СѓС‡Р°РµРј S Рё СЃСЂР°Р·Сѓ Р±РµСЂРµРј РѕС‚ РЅРµС‘ РјРѕРґСѓР»СЊ
+        double S2 = abs(getS(std::get<2>(coords_with_h), std::get<2>(coords_with_twice_half_h)));
+
+        double S = std::max(S1, S2);
 
         vector_S.push_back(S);
 
-        if (S >= m_E_check_down && S <= m_E_check_up) { // если S находится в границе "локальной погрешности" то возвращаем статус NOTHING
-            return Actions_with_H::NOTHING;
+        if (S >= m_E_check_down && S <= m_E_check_up) { // РµСЃР»Рё S РЅР°С…РѕРґРёС‚СЃСЏ РІ РіСЂР°РЅРёС†Рµ "Р»РѕРєР°Р»СЊРЅРѕР№ РїРѕРіСЂРµС€РЅРѕСЃС‚Рё" С‚Рѕ РІРѕР·РІСЂР°С‰Р°РµРј СЃС‚Р°С‚СѓСЃ NOTHING
+            return ACTIONS_WITH_H::NOTHING;
         }
-        else if (S < m_E_check_down) { // если S находится ниже нижней границы, то возвращаем статус MULTIPLY_BY_2
-            return Actions_with_H::MULTIPLY_BY_2;
+        else if (S < m_E_check_down) { // РµСЃР»Рё S РЅР°С…РѕРґРёС‚СЃСЏ РЅРёР¶Рµ РЅРёР¶РЅРµР№ РіСЂР°РЅРёС†С‹, С‚Рѕ РІРѕР·РІСЂР°С‰Р°РµРј СЃС‚Р°С‚СѓСЃ MULTIPLY_BY_2
+            return ACTIONS_WITH_H::MULTIPLY_BY_2;
         }
-        else if (S > m_E_check_up) { // если S находится выше верхней границы, то возвращаем статус DIVIDE_BY_2_AND_RECALCULATE
-            return Actions_with_H::DIVIDE_BY_2_AND_RECALCULATE;
+        else if (S > m_E_check_up) { // РµСЃР»Рё S РЅР°С…РѕРґРёС‚СЃСЏ РІС‹С€Рµ РІРµСЂС…РЅРµР№ РіСЂР°РЅРёС†С‹, С‚Рѕ РІРѕР·РІСЂР°С‰Р°РµРј СЃС‚Р°С‚СѓСЃ DIVIDE_BY_2_AND_RECALCULATE
+            return ACTIONS_WITH_H::DIVIDE_BY_2_AND_RECALCULATE;
         }
     }
 
-    Actions_with_H checkRight(double x) {
+    ACTIONS_WITH_X checkRight(double x) {
         if (x > m_b)
-            return Actions_with_H::GET_LAST; // если мы попали за правую границу, то нам необходимо вернуться и получить последний элемент
+            return ACTIONS_WITH_X::GET_LAST; // РµСЃР»Рё РјС‹ РїРѕРїР°Р»Рё Р·Р° РїСЂР°РІСѓСЋ РіСЂР°РЅРёС†Сѓ, С‚Рѕ РЅР°Рј РЅРµРѕР±С…РѕРґРёРјРѕ РІРµСЂРЅСѓС‚СЊСЃСЏ Рё РїРѕР»СѓС‡РёС‚СЊ РїРѕСЃР»РµРґРЅРёР№ СЌР»РµРјРµРЅС‚
         else if (x == m_b || (x > m_b - m_E_check_right && x < m_b))
-            return Actions_with_H::STOP; // если мы попали ровно на правую границу, то мы получаем последний элемент и заканчиваем
+            return ACTIONS_WITH_X::STOP; // РµСЃР»Рё РјС‹ РїРѕРїР°Р»Рё СЂРѕРІРЅРѕ РЅР° РїСЂР°РІСѓСЋ РіСЂР°РЅРёС†Сѓ, С‚Рѕ РјС‹ РїРѕР»СѓС‡Р°РµРј РїРѕСЃР»РµРґРЅРёР№ СЌР»РµРјРµРЅС‚ Рё Р·Р°РєР°РЅС‡РёРІР°РµРј
         else
-            return Actions_with_H::NOTHING; // если мы попали левее эпсилон - правая-граница, то ничего не делаем и продолжаем работу
+            return ACTIONS_WITH_X::NOTHING; // РµСЃР»Рё РјС‹ РїРѕРїР°Р»Рё Р»РµРІРµРµ СЌРїСЃРёР»РѕРЅ - РїСЂР°РІР°СЏ-РіСЂР°РЅРёС†Р°, С‚Рѕ РЅРёС‡РµРіРѕ РЅРµ РґРµР»Р°РµРј Рё РїСЂРѕРґРѕР»Р¶Р°РµРј СЂР°Р±РѕС‚Сѓ
     }
 
     void calculate_with_e(double x0, double u0, Task task, double u_0 = 0, double a = 0, double b = 0) {
 
-        m_data.push_back({ x0,u0, u_0 }); // пушим в вектор начальные условия
+        m_data.push_back({ x0,u0, u_0 }); // РїСѓС€РёРј РІ РІРµРєС‚РѕСЂ РЅР°С‡Р°Р»СЊРЅС‹Рµ СѓСЃР»РѕРІРёСЏ
         m_vector_of_h.push_back(m_h_start);
         m_twice_half_h_u.push_back(u0);
         difference_of_v.push_back(0);
@@ -161,87 +169,100 @@ private:
             difference_of_u.push_back(0);
         }
 
-
-        std::tuple<double, double, double> coords_with_h; // создаем вектор coords_with_h для хранения точек x и u с шагом h
+        std::tuple<double, double, double> current_coords;
+        std::tuple<double, double, double> coords_with_h; // СЃРѕР·РґР°РµРј РІРµРєС‚РѕСЂ coords_with_h РґР»СЏ С…СЂР°РЅРµРЅРёСЏ С‚РѕС‡РµРє x Рё u СЃ С€Р°РіРѕРј h
+        std::tuple<double, double, double>  coords_with_half_h;
+        std::tuple<double, double, double>  coords_with_twice_half_h;
 
         int C1count = 0;
         int C2count = 0;
 
         double h = m_h_start;
+        double next_x;
 
+        bool wasDivideStep = false;
+        
         int N = m_N_max;
 
         while (N > 0) {
-            std::tuple<double, double, double>  current_coord = m_data.back(); // получаем текущие координаты (x_n, u_n)
-            std::tuple<double, double, double>  coords_with_half_h;
-            std::tuple<double, double, double>  coords_with_twice_half_h;
+            
+            current_coords = m_data.back();
 
-            coords_with_h = RKIV(std::get<0>(current_coord), std::get<1>(current_coord), h, task, std::get<2>(current_coord), a, b); // получаем точку (x_n+1, u_n+1) с шагом h из точки (x_n, u_n)
-            coords_with_half_h = RKIV(std::get<0>(current_coord), std::get<1>(current_coord), h / 2, task, std::get<2>(current_coord), a, b); //  получаем точку (x_n+1/2, u_n+1/2) из точки (x_n, u_n) с шагом h/2
-            coords_with_twice_half_h = RKIV(std::get<0>(coords_with_half_h), std::get<1>(coords_with_half_h), h / 2, task, std::get<2>(current_coord), a, b); // получаем точку (x_n+1, u_n+1) из точки (x_n+1/2, u_n+1/2) с шагом h / 2
+            next_x = getNewX(std::get<0>(current_coords), h);
 
+            ACTIONS_WITH_X act_for_x = checkRight(next_x);
 
-            m_twice_half_h_u.push_back(std::get<1>(coords_with_twice_half_h));
-            difference_of_v.push_back(std::get<1>(coords_with_h) - std::get<1>(coords_with_twice_half_h));
+            if (act_for_x == ACTIONS_WITH_X::NOTHING || act_for_x == ACTIONS_WITH_X::STOP) {
 
-            Actions_with_H act1 = checkUpDown(std::get<1>(coords_with_h), std::get<1>(coords_with_twice_half_h)); // проверка на выход за локальную погрешность
-            Actions_with_H act2 = checkRight(std::get<0>(coords_with_h)); // проверка за выход за правую границу
+                if (wasDivideStep)
+                    coords_with_h = coords_with_twice_half_h;
+                else
+                    coords_with_h = RKIV(std::get<0>(current_coords), std::get<1>(current_coords), h, task, std::get<2>(current_coords), a, b);
+                coords_with_half_h = RKIV(std::get<0>(current_coords), std::get<1>(current_coords), h / 2, task, std::get<2>(current_coords), a, b);
+                coords_with_twice_half_h = RKIV(std::get<0>(coords_with_half_h), std::get<1>(coords_with_half_h), h / 2, task, std::get<2>(coords_with_half_h), a, b);
 
-            if (act2 == Actions_with_H::GET_LAST) {
-                h = m_b - std::get<0>(m_data.back()); // устанавливаем шаг, который привидет нас точно в правую грницу m_b
-            }
-            else if (act2 == Actions_with_H::NOTHING || act2 == Actions_with_H::STOP) { // если мы не вышли за правую границу - вернулся статус NOTHING или мы считаем последнюю точку
-                if (act1 == Actions_with_H::MULTIPLY_BY_2) { // если небходимо шаг умножить на два после проверки на лок. погрешность
-                    m_data.push_back(coords_with_h); // сохраняем точку
-                    m_vector_of_h.push_back(h); // сохраняем шаг
+                ACTIONS_WITH_H act_for_h = checkUpDown(coords_with_h, coords_with_twice_half_h);
+
+                if (act_for_h == ACTIONS_WITH_H::NOTHING) {
+                    m_twice_half_h_u.push_back(std::get<1>(coords_with_twice_half_h));
+                    difference_of_v.push_back(std::get<1>(coords_with_h) - std::get<1>(coords_with_twice_half_h));
+                    m_data.push_back(coords_with_h);
+                    m_vector_of_h.push_back(h);
                     if (task == Task::TEST_FUNC) {
                         m_vecotor_u.push_back(test_func_analytical_solution(std::get<0>(coords_with_h)));
                         difference_of_u.push_back(abs(m_vecotor_u.back() - std::get<1>(coords_with_h)));
                     }
-                    --N;
-                    h *= 2; // умножаем шаг на 2
-                    ++C2count;
-                    C2.push_back(C2count);
                     C1.push_back(C1count);
-                    C2count = C1count = 0;
+                    C2.push_back(C2count);
 
-                    if (act2 == Actions_with_H::STOP)
-                        break;
+                    --N;
+                    C1count = 0;
+                    C2count = 0;
+                    wasDivideStep = false;
                 }
-                else if (act1 == Actions_with_H::NOTHING) // если нам ничего не надо делать с шагом, находимся ровно в границе лок. погрешности
-                {
-                    m_data.push_back(coords_with_h); // сохраняем точку
-                    m_vector_of_h.push_back(h); // сохраняем шаг
+                else if (act_for_h == ACTIONS_WITH_H::MULTIPLY_BY_2) {
+                    m_twice_half_h_u.push_back(std::get<1>(coords_with_twice_half_h));
+                    difference_of_v.push_back(std::get<1>(coords_with_h) - std::get<1>(coords_with_twice_half_h));
+                    m_data.push_back(coords_with_h);
+                    m_vector_of_h.push_back(h);
                     if (task == Task::TEST_FUNC) {
                         m_vecotor_u.push_back(test_func_analytical_solution(std::get<0>(coords_with_h)));
                         difference_of_u.push_back(abs(m_vecotor_u.back() - std::get<1>(coords_with_h)));
                     }
-                    --N;
-                    C2.push_back(C2count);
                     C1.push_back(C1count);
-                    C2count = C1count = 0;
+                    C2.push_back(++C2count);
 
-                    if (act2 == Actions_with_H::STOP)
-                        break;
+                    --N;
+                    h *= 2;
+                    C1count = 0;
+                    C2count = 0;
+                    wasDivideStep = false;
                 }
-                else if (act1 == Actions_with_H::DIVIDE_BY_2_AND_RECALCULATE) { // если нам надо поделить шаг на два и пересчитать точку
-                    h /= 2; // делим шаг на два
-                    ++C1count;
+                else if (act_for_h == ACTIONS_WITH_H::DIVIDE_BY_2_AND_RECALCULATE) {
+                    h /= 2;
+                    C1count += 1;
+                    wasDivideStep = true;
                 }
+
+                if (act_for_x == ACTIONS_WITH_X::STOP)
+                    break;
             }
-
+            else if (act_for_x == ACTIONS_WITH_X::GET_LAST) {
+                wasDivideStep = false;
+                h = m_b - std::get<0>(current_coords);
+            }
         }
     }
 
     void calculate_with_constH(double x0, double u0, Task task, double u_0 = 0, double a = 0, double b = 0) {
-        m_data.push_back({ x0,u0, u_0 }); // пушим в вектор начальные условия
+        m_data.push_back({ x0,u0, u_0 }); // РїСѓС€РёРј РІ РІРµРєС‚РѕСЂ РЅР°С‡Р°Р»СЊРЅС‹Рµ СѓСЃР»РѕРІРёСЏ
 
         if (task == Task::TEST_FUNC) {
             m_vecotor_u.push_back(test_func_analytical_solution(x0));
             difference_of_u.push_back(0);
         }
 
-        std::tuple<double, double, double> coords_with_h; // создаем вектор coords_with_h для хранения точек x и u с шагом h
+        std::tuple<double, double, double> coords_with_h; // СЃРѕР·РґР°РµРј РІРµРєС‚РѕСЂ coords_with_h РґР»СЏ С…СЂР°РЅРµРЅРёСЏ С‚РѕС‡РµРє x Рё u СЃ С€Р°РіРѕРј h
 
         double h = (m_b - m_a) / m_N_max;
         int N = m_N_max;
@@ -249,15 +270,15 @@ private:
         m_vector_of_h.push_back(h);
 
         while (N > 0) {
-            std::tuple<double, double, double> current_coord = m_data.back(); // получаем текущие координаты (x_n, u_n)
+            std::tuple<double, double, double> current_coord = m_data.back(); // РїРѕР»СѓС‡Р°РµРј С‚РµРєСѓС‰РёРµ РєРѕРѕСЂРґРёРЅР°С‚С‹ (x_n, u_n)
 
-            coords_with_h = RKIV(std::get<0>(current_coord), std::get<1>(current_coord), h, task, std::get<2>(current_coord), a, b); // получаем точку (x_n+1, u_n+1) с шагом h из точки (x_n, u_n)
+            coords_with_h = RKIV(std::get<0>(current_coord), std::get<1>(current_coord), h, task, std::get<2>(current_coord), a, b); // РїРѕР»СѓС‡Р°РµРј С‚РѕС‡РєСѓ (x_n+1, u_n+1) СЃ С€Р°РіРѕРј h РёР· С‚РѕС‡РєРё (x_n, u_n)
 
-            Actions_with_H act = checkRight(std::get<0>(coords_with_h)); // проверка за выход за правую границу
+            ACTIONS_WITH_X act = checkRight(std::get<0>(coords_with_h)); // РїСЂРѕРІРµСЂРєР° Р·Р° РІС‹С…РѕРґ Р·Р° РїСЂР°РІСѓСЋ РіСЂР°РЅРёС†Сѓ
 
-            if (act == Actions_with_H::STOP) {
-                m_data.push_back(coords_with_h); // сохраняем точку
-                m_vector_of_h.push_back(h); // сохраняем шаг
+            if (act == ACTIONS_WITH_X::STOP) {
+                m_data.push_back(coords_with_h); // СЃРѕС…СЂР°РЅСЏРµРј С‚РѕС‡РєСѓ
+                m_vector_of_h.push_back(h); // СЃРѕС…СЂР°РЅСЏРµРј С€Р°Рі
                 --N;
                 if (task == Task::TEST_FUNC) {
                     m_vecotor_u.push_back(test_func_analytical_solution(std::get<0>(coords_with_h)));
@@ -266,8 +287,8 @@ private:
                 break;
             }
             else {
-                m_data.push_back(coords_with_h); // сохраняем точку
-                m_vector_of_h.push_back(h); // сохраняем шаг
+                m_data.push_back(coords_with_h); // СЃРѕС…СЂР°РЅСЏРµРј С‚РѕС‡РєСѓ
+                m_vector_of_h.push_back(h); // СЃРѕС…СЂР°РЅСЏРµРј С€Р°Рі
                 --N;
                 if (task == Task::TEST_FUNC) {
                     m_vecotor_u.push_back(test_func_analytical_solution(std::get<0>(coords_with_h)));
@@ -318,14 +339,14 @@ public:
     }
 
     void clear_data() {
-        m_vector_of_h.clear(); // веткор для хранения шагов
-        m_data.clear(); // вектор m_data для хранения точек x и u
-        m_analytical_solution_data.clear(); // вектор для хранения аналитического решения
-        m_twice_half_h_u.clear(); // вектор для хранения точек, посчитанных с двойным шагом
-        difference_of_v.clear(); // вектор разности точки с обычным шагом и двойным
-        vector_S.clear(); // вектор ОЛП
-        C1.clear(); // вектор кол-во деления шага
-        C2.clear(); // вектор кол-во умножения шага
+        m_vector_of_h.clear(); // РІРµС‚РєРѕСЂ РґР»СЏ С…СЂР°РЅРµРЅРёСЏ С€Р°РіРѕРІ
+        m_data.clear(); // РІРµРєС‚РѕСЂ m_data РґР»СЏ С…СЂР°РЅРµРЅРёСЏ С‚РѕС‡РµРє x Рё u
+        m_analytical_solution_data.clear(); // РІРµРєС‚РѕСЂ РґР»СЏ С…СЂР°РЅРµРЅРёСЏ Р°РЅР°Р»РёС‚РёС‡РµСЃРєРѕРіРѕ СЂРµС€РµРЅРёСЏ
+        m_twice_half_h_u.clear(); // РІРµРєС‚РѕСЂ РґР»СЏ С…СЂР°РЅРµРЅРёСЏ С‚РѕС‡РµРє, РїРѕСЃС‡РёС‚Р°РЅРЅС‹С… СЃ РґРІРѕР№РЅС‹Рј С€Р°РіРѕРј
+        difference_of_v.clear(); // РІРµРєС‚РѕСЂ СЂР°Р·РЅРѕСЃС‚Рё С‚РѕС‡РєРё СЃ РѕР±С‹С‡РЅС‹Рј С€Р°РіРѕРј Рё РґРІРѕР№РЅС‹Рј
+        vector_S.clear(); // РІРµРєС‚РѕСЂ РћР›Рџ
+        C1.clear(); // РІРµРєС‚РѕСЂ РєРѕР»-РІРѕ РґРµР»РµРЅРёСЏ С€Р°РіР°
+        C2.clear(); // РІРµРєС‚РѕСЂ РєРѕР»-РІРѕ СѓРјРЅРѕР¶РµРЅРёСЏ С€Р°РіР°
         m_vecotor_u.clear();
         difference_of_u.clear();
     }
