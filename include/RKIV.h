@@ -34,7 +34,7 @@ private:
     double m_a = 0; // левая граница
     double m_b = 1; // правая граница
 
-    int m_N_max = 10000; // максимальное число шагов
+    int m_N_max = 100; // максимальное число шагов
     
     int p = 4; // порядок метода
 
@@ -261,45 +261,56 @@ private:
     }
 
     void calculate_with_constH(double x0, double u0, Task task, double u_0 = 0, double a = 0, double b = 0) {
+
         m_data.push_back({ x0,u0, u_0 }); // пушим в вектор начальные условия
+        m_vector_of_h.push_back(0);
 
         if (task == Task::TEST_FUNC) {
-            m_vecotor_u.push_back(test_func_analytical_solution(x0));
-            difference_of_u.push_back(0);
+            m_vecotor_u.push_back(test_func_analytical_solution(x0)); // сохраняем точку, полученную через аналитическое решение в точке x0
+            difference_of_u.push_back(0); // пушим в вектор 0 - разность числового и аналитического решения
         }
 
-        std::tuple<double, double, double> coords_with_h; // создаем вектор coords_with_h для хранения точек x и u с шагом h
+        std::tuple<double, double, double> current_coord; // создаем коллекцию current_coord для хранения текущих координат
+        std::tuple<double, double, double> coords_with_h; // создаем коллекцию coords_with_h для хранения точек (x,u,u') с шагом h
 
-        double h = (m_b - m_a) / m_N_max;
-        int N = m_N_max;
+        double h = (m_b - m_a) / m_N_max; // рассчитываем шаг, как разность правой границы и левой границы, поделенную на максимальное число шагов
+        double x_next;
+        int N = m_N_max; // счетчик для отслеживания, чтобы не выйти за максимальное число шагов
 
-        m_vector_of_h.push_back(h);
+        while (N > 0) { // считаем пока не выйдем за максимально допустимое число шагов
+            
+            current_coord = m_data.back(); // получаем текущие координаты (x_n, u_n, u'_n)
 
-        while (N > 0) {
-            std::tuple<double, double, double> current_coord = m_data.back(); // получаем текущие координаты (x_n, u_n)
+            x_next = getNewX(std::get<0>(current_coord), h);
+            
+            ACTIONS_WITH_X act_for_x = checkRight(x_next); // проверка за выход за правую границу
 
-            coords_with_h = RKIV(std::get<0>(current_coord), std::get<1>(current_coord), h, task, std::get<2>(current_coord), a, b); // получаем точку (x_n+1, u_n+1) с шагом h из точки (x_n, u_n)
+            if (act_for_x == ACTIONS_WITH_X::NOTHING) {
 
-            ACTIONS_WITH_X act = checkRight(std::get<0>(coords_with_h)); // проверка за выход за правую границу
+                coords_with_h = RKIV(std::get<0>(current_coord), std::get<1>(current_coord), h, task, std::get<2>(current_coord), a, b); // получаем координаты из текущей точки с шагом h
 
-            if (act == ACTIONS_WITH_X::STOP) {
                 m_data.push_back(coords_with_h); // сохраняем точку
                 m_vector_of_h.push_back(h); // сохраняем шаг
+
+                --N;
+                if (task == Task::TEST_FUNC) {
+                    m_vecotor_u.push_back(test_func_analytical_solution(std::get<0>(coords_with_h)));
+                    difference_of_u.push_back(abs(m_vecotor_u.back() - std::get<1>(coords_with_h)));
+                }
+            }
+            else if (act_for_x == ACTIONS_WITH_X::STOP || act_for_x == ACTIONS_WITH_X::GET_LAST) {
+                
+                coords_with_h = RKIV(std::get<0>(current_coord), std::get<1>(current_coord), h, task, std::get<2>(current_coord), a, b); // получаем координаты из текущей точки с шагом h
+
+                m_data.push_back(coords_with_h); // сохраняем точку
+                m_vector_of_h.push_back(h); // сохраняем шаг
+
                 --N;
                 if (task == Task::TEST_FUNC) {
                     m_vecotor_u.push_back(test_func_analytical_solution(std::get<0>(coords_with_h)));
                     difference_of_u.push_back(abs(m_vecotor_u.back() - std::get<1>(coords_with_h)));
                 }
                 break;
-            }
-            else {
-                m_data.push_back(coords_with_h); // сохраняем точку
-                m_vector_of_h.push_back(h); // сохраняем шаг
-                --N;
-                if (task == Task::TEST_FUNC) {
-                    m_vecotor_u.push_back(test_func_analytical_solution(std::get<0>(coords_with_h)));
-                    difference_of_u.push_back(abs(m_vecotor_u.back() - std::get<1>(coords_with_h)));
-                }
             }
         }
     }

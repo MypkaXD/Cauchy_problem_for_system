@@ -557,7 +557,7 @@ public:
         int size = 9;
 
         if (isConstH)
-            size = 3; // размер 3 для таблицы
+            size = 4; // размер 3 для таблицы
 
         if (item_current_idx == 0) {
             difference_of_u = rk.getVectorOfDifferenceU();
@@ -589,6 +589,9 @@ public:
                     ImGui::TableSetupColumn("divisions", ImGuiTableColumnFlags_WidthFixed);
                     ImGui::TableSetupColumn("doublings", ImGuiTableColumnFlags_WidthFixed);
                 }
+                else
+                    ImGui::TableSetupColumn("Hi");
+                
                 if (item_current_idx == 0) {
                     ImGui::TableSetupColumn("Ui");
                     ImGui::TableSetupColumn("|Ui-Vi|");
@@ -619,6 +622,10 @@ public:
                     ImGui::TableSetColumnIndex(8);
                     ImGui::Text("%d", C2[row]);
                 }
+                else {
+                    ImGui::TableSetColumnIndex(3);
+                    ImGui::Text("%.24lf", vector_of_h[row]);
+                }
                 if (item_current_idx == 0 && !isConstH) {
                     ImGui::TableSetColumnIndex(9);
                     ImGui::Text("%.24lf", coordsOfU[row]);
@@ -626,9 +633,9 @@ public:
                     ImGui::Text("%.24lf", difference_of_u[row]);
                 }
                 else if (item_current_idx == 0 && isConstH) {
-                    ImGui::TableSetColumnIndex(3);
-                    ImGui::Text("%.24lf", coordsOfU[row]);
                     ImGui::TableSetColumnIndex(4);
+                    ImGui::Text("%.24lf", coordsOfU[row]);
+                    ImGui::TableSetColumnIndex(5);
                     ImGui::Text("%.24lf", difference_of_u[row]);
                 }
             }
