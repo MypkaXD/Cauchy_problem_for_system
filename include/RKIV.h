@@ -130,6 +130,9 @@ private:
 
     ACTIONS_WITH_H checkUpDown(std::tuple<double, double, double> coords_with_h, std::tuple<double, double, double> coords_with_twice_half_h) {
         
+        if (std::isnan(std::get<1>(coords_with_h))|| std::isnan(std::get<1>(coords_with_twice_half_h)))
+            return ACTIONS_WITH_H::DIVIDE_BY_2_AND_RECALCULATE;
+
         double S1 = abs(getS(std::get<1>(coords_with_h), std::get<1>(coords_with_twice_half_h))); // получаем S от u и сразу берем от неё модуль
         double S2 = abs(getS(std::get<2>(coords_with_h), std::get<2>(coords_with_twice_half_h))); // получаем S от u' и сразу берем от неё модуль
 
