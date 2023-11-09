@@ -557,7 +557,7 @@ public:
         int size = 9;
 
         if (isConstH)
-            size = 4; // размер 3 для таблицы
+            size = 7; // размер 3 для таблицы
 
         if (item_current_idx == 0) {
             difference_of_u = rk.getVectorOfDifferenceU();
@@ -581,17 +581,14 @@ public:
                 ImGui::TableSetupColumn("#", ImGuiTableColumnFlags_WidthFixed);
                 ImGui::TableSetupColumn("Xi");
                 ImGui::TableSetupColumn("Vi");
+                ImGui::TableSetupColumn("OLP");
+                ImGui::TableSetupColumn("V^i");
+                ImGui::TableSetupColumn("Vi-V^i");
+                ImGui::TableSetupColumn("Hi");
                 if (!isConstH) {
-                    ImGui::TableSetupColumn("V^i");
-                    ImGui::TableSetupColumn("Vi-V^i");
-                    ImGui::TableSetupColumn("OLP");
-                    ImGui::TableSetupColumn("Hi");
                     ImGui::TableSetupColumn("divisions", ImGuiTableColumnFlags_WidthFixed);
                     ImGui::TableSetupColumn("doublings", ImGuiTableColumnFlags_WidthFixed);
                 }
-                else
-                    ImGui::TableSetupColumn("Hi");
-                
                 if (item_current_idx == 0) {
                     ImGui::TableSetupColumn("Ui");
                     ImGui::TableSetupColumn("|Ui-Vi|");
@@ -608,23 +605,19 @@ public:
                 ImGui::Text("%.24lf", std::get<0>(data_for_numerical_solution[row]));
                 ImGui::TableSetColumnIndex(2);
                 ImGui::Text("%.24lf", std::get<1>(data_for_numerical_solution[row]));
+                ImGui::TableSetColumnIndex(3);
+                ImGui::Text("%.24lf", vector_S[row]);
+                ImGui::TableSetColumnIndex(4);
+                ImGui::Text("%.24lf", twice_half_h_u[row]);
+                ImGui::TableSetColumnIndex(5);
+                ImGui::Text("%.24lf", difference_of_v[row]);
+                ImGui::TableSetColumnIndex(6);
+                ImGui::Text("%.24lf", vector_of_h[row]);
                 if (!isConstH) {
-                    ImGui::TableSetColumnIndex(3);
-                    ImGui::Text("%.24lf", twice_half_h_u[row]);
-                    ImGui::TableSetColumnIndex(4);
-                    ImGui::Text("%.24lf", difference_of_v[row]);
-                    ImGui::TableSetColumnIndex(5);
-                    ImGui::Text("%.24lf", vector_S[row]);
-                    ImGui::TableSetColumnIndex(6);
-                    ImGui::Text("%.24lf", vector_of_h[row]);
                     ImGui::TableSetColumnIndex(7);
                     ImGui::Text("%d", C1[row]);
                     ImGui::TableSetColumnIndex(8);
                     ImGui::Text("%d", C2[row]);
-                }
-                else {
-                    ImGui::TableSetColumnIndex(3);
-                    ImGui::Text("%.24lf", vector_of_h[row]);
                 }
                 if (item_current_idx == 0 && !isConstH) {
                     ImGui::TableSetColumnIndex(9);
@@ -633,9 +626,9 @@ public:
                     ImGui::Text("%.24lf", difference_of_u[row]);
                 }
                 else if (item_current_idx == 0 && isConstH) {
-                    ImGui::TableSetColumnIndex(4);
+                    ImGui::TableSetColumnIndex(7);
                     ImGui::Text("%.24lf", coordsOfU[row]);
-                    ImGui::TableSetColumnIndex(5);
+                    ImGui::TableSetColumnIndex(8);
                     ImGui::Text("%.24lf", difference_of_u[row]);
                 }
             }

@@ -267,6 +267,9 @@ private:
 
         m_data.push_back({ x0,u0, u_0 }); // пушим в вектор начальные условия
         m_vector_of_h.push_back(0);
+        vector_S.push_back(0);
+        m_twice_half_h_u.push_back(u0); // пушим в вектор v^ (u0)
+        difference_of_v.push_back(0); // пушим в вектор разности v - v^ (0)
 
         if (task == Task::TEST_FUNC) {
             m_vecotor_u.push_back(test_func_analytical_solution(x0)); // сохраняем точку, полученную через аналитическое решение в точке x0
@@ -275,6 +278,8 @@ private:
 
         std::tuple<double, double, double> current_coord; // создаем коллекцию current_coord для хранения текущих координат
         std::tuple<double, double, double> coords_with_h; // создаем коллекцию coords_with_h для хранения точек (x,u,u') с шагом h
+        std::tuple<double, double, double>  coords_with_half_h; // создаем коллекцию coords_with_half_h для хранения точек (x, u, u') с шагом h/2
+        std::tuple<double, double, double>  coords_with_twice_half_h; // создаем коллекцию coords_with_twice_half_h для хранения точек (x, u, u') с двойным шагом h/2
 
         double h = (m_b - m_a) / m_N_max; // рассчитываем шаг, как разность правой границы и левой границы, поделенную на максимальное число шагов
         double x_next;
@@ -291,10 +296,15 @@ private:
             if (act_for_x == ACTIONS_WITH_X::NOTHING) {
 
                 coords_with_h = RKIV(std::get<0>(current_coord), std::get<1>(current_coord), h, task, std::get<2>(current_coord), a, b); // получаем координаты из текущей точки с шагом h
+                coords_with_half_h = RKIV(std::get<0>(current_coord), std::get<1>(current_coord), h / 2, task, std::get<2>(current_coord), a, b); // получаем координаты из текущей точки с шагом h/2
+                coords_with_twice_half_h = RKIV(std::get<0>(coords_with_half_h), std::get<1>(coords_with_half_h), h / 2, task, std::get<2>(coords_with_half_h), a, b); // получаем координаты из точки coords_with_half_h с шагом h/2
 
+                m_twice_half_h_u.push_back(std::get<1>(coords_with_twice_half_h)); // сохраняем в вектор точку, полученную двойным шагом
+                difference_of_v.push_back(std::get<1>(coords_with_h) - std::get<1>(coords_with_twice_half_h)); // разность между точкой полученный с помощью целого шага и двойного половинного
                 m_data.push_back(coords_with_h); // сохраняем точку
                 m_vector_of_h.push_back(h); // сохраняем шаг
 
+                vector_S.push_back(abs(getS(std::get<0>(coords_with_h), std::get<0>(coords_with_twice_half_h))));
                 --N;
                 if (task == Task::TEST_FUNC) {
                     m_vecotor_u.push_back(test_func_analytical_solution(std::get<0>(coords_with_h)));
@@ -304,9 +314,15 @@ private:
             else if (act_for_x == ACTIONS_WITH_X::STOP || act_for_x == ACTIONS_WITH_X::GET_LAST) {
                 
                 coords_with_h = RKIV(std::get<0>(current_coord), std::get<1>(current_coord), h, task, std::get<2>(current_coord), a, b); // получаем координаты из текущей точки с шагом h
+                coords_with_half_h = RKIV(std::get<0>(current_coord), std::get<1>(current_coord), h / 2, task, std::get<2>(current_coord), a, b); // получаем координаты из текущей точки с шагом h/2
+                coords_with_twice_half_h = RKIV(std::get<0>(coords_with_half_h), std::get<1>(coords_with_half_h), h / 2, task, std::get<2>(coords_with_half_h), a, b); // получаем координаты из точки coords_with_half_h с шагом h/2
 
+                m_twice_half_h_u.push_back(std::get<1>(coords_with_twice_half_h)); // сохраняем в вектор точку, полученную двойным шагом
+                difference_of_v.push_back(std::get<1>(coords_with_h) - std::get<1>(coords_with_twice_half_h)); // разность между точкой полученный с помощью целого шага и двойного половинного
                 m_data.push_back(coords_with_h); // сохраняем точку
                 m_vector_of_h.push_back(h); // сохраняем шаг
+                
+                vector_S.push_back(abs(getS(std::get<0>(coords_with_h), std::get<0>(coords_with_twice_half_h))));
 
                 --N;
                 if (task == Task::TEST_FUNC) {
@@ -319,10 +335,10 @@ private:
     }
 
     void analytical_solution() {
-        double h = (m_b - m_a) / m_N_max;
+        double h = 0.001;
         double x = m_a;
 
-        for (int count = 0; count <= m_N_max; ++count) {
+        while (x <= m_b) {
             m_analytical_solution_data.push_back({ x, test_func_analytical_solution(x)});
             x += h;
         }
