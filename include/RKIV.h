@@ -90,7 +90,7 @@ private:
     }
 
     double getS(double u_with_h, double u_with_twice_half_h) {
-        return ((u_with_twice_half_h - u_with_h) / ((2 << (p - 1)) - 1)); // считаем S по формуле S = (v_h/2(n+1) - v_h(n+1)) / (2^p - 1)
+        return ((u_with_twice_half_h - u_with_h) / 15); // считаем S по формуле S = (v_h/2(n+1) - v_h(n+1)) / (2^p - 1)
     }
 
     std::tuple<double, double, double> RKIV(double x, double u, double h, Task task, double u_ = 0, double a = 1, double b = 2) { // реализация метода
@@ -304,7 +304,7 @@ private:
                 m_data.push_back(coords_with_h); // сохраняем точку
                 m_vector_of_h.push_back(h); // сохраняем шаг
 
-                vector_S.push_back(abs(getS(std::get<0>(coords_with_h), std::get<0>(coords_with_twice_half_h))));
+                vector_S.push_back(abs((std::get<1>(coords_with_h)-std::get<1>(coords_with_twice_half_h))/15));
                 --N;
                 if (task == Task::TEST_FUNC) {
                     m_vecotor_u.push_back(test_func_analytical_solution(std::get<0>(coords_with_h)));
@@ -322,7 +322,7 @@ private:
                 m_data.push_back(coords_with_h); // сохраняем точку
                 m_vector_of_h.push_back(h); // сохраняем шаг
                 
-                vector_S.push_back(abs(getS(std::get<0>(coords_with_h), std::get<0>(coords_with_twice_half_h))));
+                vector_S.push_back(abs((std::get<1>(coords_with_h) - std::get<1>(coords_with_twice_half_h)) / 15));
 
                 --N;
                 if (task == Task::TEST_FUNC) {
@@ -338,7 +338,7 @@ private:
         double h = 0.001;
         double x = m_a;
 
-        while (x <= m_b) {
+        while (!(x > m_b)) {
             m_analytical_solution_data.push_back({ x, test_func_analytical_solution(x)});
             x += h;
         }

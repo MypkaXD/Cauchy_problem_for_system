@@ -554,6 +554,15 @@ public:
         std::vector<double> difference_of_u;
         std::vector<double> coordsOfU;
 
+        //for (int count = 0; count < vector_S.size(); ++count) {
+        //    std::cout << vector_S[count] << std::endl;
+        //}
+        //for (int count = 0; count < data_for_numerical_solution.size(); ++count) {
+        //    std::cout << abs((std::get<1>(data_for_numerical_solution[count]) - twice_half_h_u[count]) / 15) << std::endl;
+        //}
+        //
+        //std::cout << "------------------------" << std::endl;
+
         int size = 9;
 
         if (isConstH)
@@ -581,7 +590,7 @@ public:
                 ImGui::TableSetupColumn("#", ImGuiTableColumnFlags_WidthFixed);
                 ImGui::TableSetupColumn("Xi");
                 ImGui::TableSetupColumn("Vi");
-                ImGui::TableSetupColumn("OLP");
+                ImGui::TableSetupColumn("OLP", ImGuiTableColumnFlags_WidthFixed);
                 ImGui::TableSetupColumn("V^i");
                 ImGui::TableSetupColumn("Vi-V^i");
                 ImGui::TableSetupColumn("Hi");
@@ -606,7 +615,7 @@ public:
                 ImGui::TableSetColumnIndex(2);
                 ImGui::Text("%.24lf", std::get<1>(data_for_numerical_solution[row]));
                 ImGui::TableSetColumnIndex(3);
-                ImGui::Text("%.24lf", vector_S[row]);
+                ImGui::Text("%.36f", vector_S[row]);
                 ImGui::TableSetColumnIndex(4);
                 ImGui::Text("%.24lf", twice_half_h_u[row]);
                 ImGui::TableSetColumnIndex(5);
