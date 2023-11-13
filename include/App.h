@@ -189,26 +189,35 @@ public:
 
         ImGui::Begin("Window for info",0,flagsForWindows);
         if (isPressed) {
+
+            if (item_current_idx == 0)
+                ImGui::Text("TASK: du/dx = -5/2*u");
+            else if (item_current_idx == 1)
+                ImGui::Text("TASK: du/dx = ln(x+1)/(x^2+1)*u^2 - u + u^3*sin(10*x)");
+            else
+                ImGui::Text("TASK: d^2u/dx^2 + a*(u')^2 - b*sin(u) = 0");
+
             ImGui::Text("Count of N: %d", rk.getCoords().size() - 1);
+            
+            std::vector<double> S = rk.getVectorOfS();
+            double maxS = *max_element(S.begin(), S.end());
+            ImGui::Text("MAX OLP: %.24lf", maxS);
+
+            std::vector<double> H = rk.getH();
+            double maxH = *max_element(H.begin()+1, H.end());
+            double minH = *min_element(H.begin()+1, H.end());
+            ImGui::Text("MIN H: %.24lf", minH);
+            ImGui::Text("MAX H: %.24lf", maxH);
+            double diff_of_b_and_x_last = rk.getBorder().second - std::get<0>(rk.getCoords().back());
+            ImGui::Text("b - x_n: %.24lf", diff_of_b_and_x_last);
+            
+            if (item_current_idx == 0) {
+                std::vector<double> diff = rk.getVectorOfDifferenceU();
+                double maxDiff = *max_element(diff.begin(), diff.end());
+                ImGui::Text("MAX |Ui-Vi|: %.24lf", maxDiff);
+            }
+            
             if (!isConstH) {
-                std::vector<double> S = rk.getVectorOfS();
-                double maxS = *max_element(S.begin(), S.end());
-                ImGui::Text("MAX OLP: %.24lf", maxS);
-
-                std::vector<double> H = rk.getH();
-                double maxH = *max_element(H.begin()+1, H.end());
-                double minH = *min_element(H.begin()+1, H.end());
-                ImGui::Text("MIN H: %.24lf", minH);
-                ImGui::Text("MAX H: %.24lf", maxH);
-
-                double diff_of_b_and_x_last = rk.getBorder().second - std::get<0>(rk.getCoords().back());
-                ImGui::Text("b - x_n: %.24lf", diff_of_b_and_x_last);
-
-                if (item_current_idx == 0) {
-                    std::vector<double> diff = rk.getVectorOfDifferenceU();
-                    double maxDiff = *max_element(diff.begin(), diff.end());
-                    ImGui::Text("MAX |Ui-Vi|: %.24lf", maxDiff);
-                }
 
                 int countOfDiv = rk.getCountOfDivisions();
                 int countOfMult = rk.getCountOfDoublings();
